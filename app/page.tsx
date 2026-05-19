@@ -36,6 +36,7 @@ import {
   Link as LinkIcon,
   Undo2,
   Redo2,
+  Timer,
 } from "lucide-react"
 import { toast } from 'sonner'
 
@@ -937,6 +938,121 @@ document.addEventListener('DOMContentLoaded', function() {
     renderTodos();
     updateStats();
 });`,
+    },
+  },
+  {
+    id: "stopwatch",
+    name: "Stopwatch",
+    description: "Simple stopwatch with start, stop and reset",
+    icon: <Timer className="w-4 h-4" />,
+    content: {
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Stopwatch</h1>
+        <div class="display" id="display">00:00:00</div>
+        <div class="buttons">
+            <button onclick="startStop()" id="startBtn">Start</button>
+            <button onclick="reset()">Reset</button>
+        </div>
+    </div>
+</body>
+</html>`,
+      css: `body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.container {
+    text-align: center;
+    color: white;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.display {
+    font-size: 5rem;
+    font-weight: bold;
+    margin: 2rem 0;
+    color: #00d4ff;
+    letter-spacing: 4px;
+}
+
+.buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+button {
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    background: #00d4ff;
+    color: #1a1a2e;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+}`,
+      javascript: `let timer = null;
+let seconds = 0;
+let running = false;
+
+function startStop() {
+    const btn = document.getElementById('startBtn');
+    if (running) {
+        clearInterval(timer);
+        btn.textContent = 'Start';
+        running = false;
+    } else {
+        timer = setInterval(() => {
+            seconds++;
+            updateDisplay();
+        }, 1000);
+        btn.textContent = 'Stop';
+        running = true;
+    }
+}
+
+function reset() {
+    clearInterval(timer);
+    seconds = 0;
+    running = false;
+    document.getElementById('startBtn').textContent = 'Start';
+    updateDisplay();
+}
+
+function updateDisplay() {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    document.getElementById('display').textContent =
+        String(hrs).padStart(2, '0') + ':' +
+        String(mins).padStart(2, '0') + ':' +
+        String(secs).padStart(2, '0');
+}`,
     },
   },
 ]
