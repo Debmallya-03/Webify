@@ -1,5 +1,12 @@
 "use client"
 
+//(after "use client", before imports)
+const safeBase64Encode = (str: string) =>
+  btoa(unescape(encodeURIComponent(str)));
+
+const safeBase64Decode = (str: string) =>
+  decodeURIComponent(escape(atob(str)));
+
 import type React from "react"
 
 import { useState, useEffect, useMemo, useRef } from "react"
@@ -36,6 +43,7 @@ import { toast } from 'sonner'
 
 import JSZip from "jszip"
 import dynamic from "next/dynamic"
+import Link from "next/link"
 // Monaco Editor must be loaded client-side only.
 // It directly accesses browser APIs (window, Worker) that don't exist in Node.
 // Removing `ssr: false` or moving this import to a Server Component will
@@ -1057,7 +1065,7 @@ export default function CodeEditor() {
     try {
       const urlParams = new URLSearchParams(window.location.search)
       const sharedCode = urlParams.get('code')
-      if (sharedCode) return JSON.parse(atob(sharedCode)) as CodeContent
+      if (sharedCode) return JSON.parse(safeBase64Decode(sharedCode)) as CodeContent
     } catch {
       // invalid share URL — fall through
     }
@@ -1075,6 +1083,7 @@ export default function CodeEditor() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [theme, setTheme] = useState<"light" | "dark">("light")
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [autoRun, setAutoRun] = useState(true)
   const previewRef = useRef<HTMLIFrameElement>(null)
   const activeEditorRef = useRef<{
     focus: () => void
@@ -1129,6 +1138,7 @@ export default function CodeEditor() {
 
   useEffect(() => {
     if (!previewRef.current) return
+    if (!autoRun) return
 
     if (!htmlValidation.isValid) {
       previewRef.current.srcdoc = createPreviewErrorHtml(htmlValidation.message ?? "Invalid HTML syntax.")
@@ -1156,7 +1166,38 @@ export default function CodeEditor() {
     previewRef.current.src = url
 
     return () => URL.revokeObjectURL(url)
-  }, [code, htmlValidation])
+  }, [code, htmlValidation, autoRun])
+
+const runCodeManually = () => {
+  if (!previewRef.current) return
+
+  if (!htmlValidation.isValid) {
+    previewRef.current.srcdoc = createPreviewErrorHtml(
+      htmlValidation.message ?? "Invalid HTML syntax."
+    )
+    return
+  }
+
+  const combinedCode = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Live Preview</title>
+      <style>${code.css}</style>
+    </head>
+    <body>
+      ${code.html}
+      <script>${code.javascript}</script>
+    </body>
+    </html>
+  `
+
+  const blob = new Blob([combinedCode], { type: "text/html" })
+  const url = URL.createObjectURL(blob)
+  previewRef.current.src = url
+}
 
   const handleCodeChange = (language: keyof CodeContent, value: string) => {
     setCode((prev) => ({ ...prev, [language]: value }))
@@ -1245,7 +1286,7 @@ ${code.html}
 
     if (sharedCode) {
       try {
-        const decoded = JSON.parse(atob(sharedCode))
+        const decoded = JSON.parse(safeBase64Decode(sharedCode))
         setCode(decoded)
         toast("Shared code loaded", {
           description: "The shared code has been loaded successfully.",
@@ -1264,7 +1305,7 @@ ${code.html}
   const copyShareLink = async () => {
     if (typeof window === "undefined") return
     try {
-      const url = `${window.location.origin}?code=${btoa(
+      const url = `${window.location.origin}?code=${safeBase64Encode(
         JSON.stringify({ html: code.html, css: code.css, javascript: code.javascript }),
       )}`
       await navigator.clipboard.writeText(url)
@@ -1444,10 +1485,10 @@ ${code.html}
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+              <Link href="/" className="flex items-center gap-2 cursor-pointer">
                 <Code2 className="w-6 h-6 text-blue-600" />
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">Webify</h1>
-              </div>
+              </Link>
 
               <Select onValueChange={(value) => loadTemplate(templates.find((t) => t.id === value)!)}>
                 <SelectTrigger className="w-48">
@@ -1517,7 +1558,7 @@ ${code.html}
               <CopyButton
                 text={
                   typeof window !== "undefined"
-                    ? `${window.location.origin}?code=${btoa(
+                    ? `${window.location.origin}?code=${safeBase64Encode(
                       JSON.stringify({
                         html: code.html,
                         css: code.css,
@@ -1634,14 +1675,55 @@ ${code.html}
                   Open in new tab
                 </Button>
               </div>
+
+            </Tabs>
+          </div>
+        )}
+
+        {/* Preview */}
+        {(layout === "preview" || layout === "split") && (
+          <div className={`${layout === "split" ? "w-1/2" : "w-full"} flex flex-col`}>
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+  <Play className="w-4 h-4 text-green-600" />
+  <span className="font-medium text-gray-900 dark:text-white">Live Preview</span>
+
+  <Badge variant="secondary" className="text-xs">
+  {autoRun ? "Auto-refresh" : "Manual"}
+</Badge>
+
+<Button
+  variant="outline"
+  size="sm"
+  onClick={() => setAutoRun(!autoRun)}
+>
+  {autoRun ? "Pause" : "Resume"}
+</Button>
+
+  {!autoRun && (
+    <Button size="sm" variant="default" onClick={runCodeManually}>
+      Run
+    </Button>
+  )}
+</div>
+            </div>
+            <div className="flex-1 bg-white">
+              <iframe
+                ref={previewRef}
+                className="w-full h-full border-0"
+                title="Live Preview"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+              />
+
               <div className="flex-1 bg-white">
                 <iframe
                   ref={previewRef}
                   className="w-full h-full border-0"
                   title="Live Preview"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                  sandbox="allow-scripts allow-forms allow-popups allow-modals"
                 />
               </div>
+
             </div>
           )}
         </div>
