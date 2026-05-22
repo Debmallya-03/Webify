@@ -1544,7 +1544,33 @@ export default function CodeEditor() {
   const isDragging = useRef(false)
   const [isResizing, setIsResizing] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  
+
+  //use effect for handling full screen mode
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+  const handleFullscreenToggle = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+      }
+    } catch (err) {
+      console.error("Error attempting to toggle fullscreen:", err);
+      setIsFullscreen((prev) => !prev);
+    }
+  };
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768)
     handleResize() // Set initial value
@@ -1552,46 +1578,46 @@ export default function CodeEditor() {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-const containerRef = useRef<HTMLDivElement>(null)
-const previewRef = useRef<HTMLIFrameElement>(null)
-const handleDragStart = () => {
-  isDragging.current = true;
-  setIsResizing(true);
-  document.body.style.userSelect = "none";
-};
+  const containerRef = useRef<HTMLDivElement>(null)
+  const previewRef = useRef<HTMLIFrameElement>(null)
+  const handleDragStart = () => {
+    isDragging.current = true;
+    setIsResizing(true);
+    document.body.style.userSelect = "none";
+  };
 
-const handleDragMove = useCallback((clientX: number, clientY: number) => {
-  if (!isDragging.current || !containerRef.current) return;
+  const handleDragMove = useCallback((clientX: number, clientY: number) => {
+    if (!isDragging.current || !containerRef.current) return;
 
-  const rect = containerRef.current.getBoundingClientRect();
-  const isMobile = window.innerWidth < 768; // Tailwind 'md' breakpoint
+    const rect = containerRef.current.getBoundingClientRect();
+    const isMobile = window.innerWidth < 768; // Tailwind 'md' breakpoint
 
-  let newRatio;
-  if (isMobile) {
-    newRatio = ((clientY - rect.top) / rect.height) * 100;
-  } else {
-    newRatio = ((clientX - rect.left) / rect.width) * 100;
-  }
+    let newRatio;
+    if (isMobile) {
+      newRatio = ((clientY - rect.top) / rect.height) * 100;
+    } else {
+      newRatio = ((clientX - rect.left) / rect.width) * 100;
+    }
 
-  const clampedRatio = Math.max(20, Math.min(80, newRatio));
-  setSplitRatio(clampedRatio);
-}, []);
+    const clampedRatio = Math.max(20, Math.min(80, newRatio));
+    setSplitRatio(clampedRatio);
+  }, []);
 
-const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
-  handleDragMove(e.clientX, e.clientY);
-}, [handleDragMove]);
+  const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
+    handleDragMove(e.clientX, e.clientY);
+  }, [handleDragMove]);
 
-const handleTouchMove = useCallback((e: globalThis.TouchEvent) => {
-  if (isDragging.current) {
-    handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
-  }
-}, [handleDragMove]);
+  const handleTouchMove = useCallback((e: globalThis.TouchEvent) => {
+    if (isDragging.current) {
+      handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, [handleDragMove]);
 
-const handleDragEnd = useCallback(() => {
-  isDragging.current = false;
-  setIsResizing(false);
-  document.body.style.userSelect = "auto";
-}, []);
+  const handleDragEnd = useCallback(() => {
+    isDragging.current = false;
+    setIsResizing(false);
+    document.body.style.userSelect = "auto";
+  }, []);
 
   const [editorWidth, setEditorWidth] = useState(50)
   // Tracks which template is currently active
@@ -1608,10 +1634,7 @@ const handleDragEnd = useCallback(() => {
     }
     return {}
   })
-  const isDragging = useRef(false)
-  const [isResizing, setIsResizing] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const previewRef = useRef<HTMLIFrameElement>(null)
+
 
   const handleMouseDown = () => {
     isDragging.current = true;
@@ -1619,16 +1642,6 @@ const handleDragEnd = useCallback(() => {
     document.body.style.userSelect = "none";
     document.body.style.cursor = "col-resize";
   };
-
-  const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
-    if (!isDragging.current || !containerRef.current) return;
-
-    const rect = containerRef.current.getBoundingClientRect();
-    const newWidth = ((e.clientX - rect.left) / rect.width) * 100;
-
-    const clampedWidth = Math.max(20, Math.min(80, newWidth));
-    setEditorWidth(clampedWidth);
-  }, [setEditorWidth]);
 
   const handleMouseUp = useCallback(() => {
     isDragging.current = false;
@@ -1638,19 +1651,19 @@ const handleDragEnd = useCallback(() => {
   }, []);
 
 
-useEffect(() => {
-  window.addEventListener("mousemove", handleMouseMove);
-  window.addEventListener("mouseup", handleDragEnd);
-  window.addEventListener("touchmove", handleTouchMove, { passive: false });
-  window.addEventListener("touchend", handleDragEnd);
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleDragEnd);
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleDragEnd);
 
-  return () => {
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleDragEnd);
-    window.removeEventListener("touchmove", handleTouchMove);
-    window.removeEventListener("touchend", handleDragEnd);
-  };
-}, [handleMouseMove, handleTouchMove, handleDragEnd]);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleDragEnd);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleDragEnd);
+    };
+  }, [handleMouseMove, handleTouchMove, handleDragEnd]);
 
   const activeEditorRef = useRef<{
     focus: () => void
@@ -1663,15 +1676,15 @@ useEffect(() => {
     codeRef.current = code
   }, [code])
 
-useEffect(() => {
-  window.addEventListener("mousemove", handleMouseMove);
-  window.addEventListener("mouseup", handleDragEnd);
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleDragEnd);
 
-  return () => {
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleDragEnd);
-  };
-}, [handleMouseMove, handleDragEnd]);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleDragEnd);
+    };
+  }, [handleMouseMove, handleDragEnd]);
 
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);
@@ -1696,16 +1709,16 @@ useEffect(() => {
     return () => clearTimeout(timer)
   }, [code])
   // Auto-save per-template snapshots to localStorage, debounced 500ms
-useEffect(() => {
-  const timer = setTimeout(() => {
-    try {
-      localStorage.setItem('webify_template_snapshots', JSON.stringify(templateSnapshots))
-    } catch (err) {
-      console.warn('Webify: template snapshot save failed', err)
-    }
-  }, 500)
-  return () => clearTimeout(timer)
-}, [templateSnapshots])
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem('webify_template_snapshots', JSON.stringify(templateSnapshots))
+      } catch (err) {
+        console.warn('Webify: template snapshot save failed', err)
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [templateSnapshots])
 
   // empty deps — registers once, codeRef keeps values fresh
   // Initialize theme from storage/preferences on mount
@@ -1775,8 +1788,8 @@ useEffect(() => {
       </body>
       </html>
     `
-        
-    
+
+
     const blob = new Blob([combinedCode], { type: "text/html" })
     const url = URL.createObjectURL(blob)
     previewRef.current.src = url
@@ -1837,21 +1850,21 @@ useEffect(() => {
   }
 
   // AFTER
-const loadTemplate = (template: Template) => {
-  // Save the current template's edits before switching away
-  if (currentTemplateId) {
-    setTemplateSnapshots(prev => ({ ...prev, [currentTemplateId]: code }))
+  const loadTemplate = (template: Template) => {
+    // Save the current template's edits before switching away
+    if (currentTemplateId) {
+      setTemplateSnapshots(prev => ({ ...prev, [currentTemplateId]: code }))
+    }
+
+    // Restore the user's last edits for this template, or fall back to its default content
+    const savedSnapshot = templateSnapshots[template.id]
+    setCode(savedSnapshot ?? template.content)
+    setCurrentTemplateId(template.id)
+
+    toast("Template loaded", {
+      description: `${template.name} template has been loaded successfully.`,
+    })
   }
-
-  // Restore the user's last edits for this template, or fall back to its default content
-  const savedSnapshot = templateSnapshots[template.id]
-  setCode(savedSnapshot ?? template.content)
-  setCurrentTemplateId(template.id)
-
-  toast("Template loaded", {
-    description: `${template.name} template has been loaded successfully.`,
-  })
-}
 
 
   const downloadCode = async () => {
@@ -2078,7 +2091,7 @@ ${code.html}
           <Maximize2 className="w-4 h-4" />
         ),
         keywords: "expand maximize zoom",
-        perform: () => setIsFullscreen((v) => !v),
+        perform: handleFullscreenToggle,
       },
       {
         id: "action-theme",
@@ -2125,21 +2138,21 @@ ${code.html}
       <div className={`h-screen flex flex-col bg-gray-50 dark:bg-gray-900 ${isFullscreen ? "fixed inset-0 z-50" : ""}`}>
         {/* Header */}
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 w-full">
-           <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 w-full">
+            <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
               <Link href="/" className="flex items-center gap-2 cursor-pointer">
                 <Code2 className="w-6 h-6 text-blue-600" />
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">Webify</h1>
               </Link>
 
               <Select onValueChange={(value) => loadTemplate(templates.find((t) => t.id === value)!)}>
-           <SelectTrigger className="w-[200px] sm:w-[210px] md:w-[240px] max-w-full min-w-0 overflow-hidden">
- <div className="flex items-center overflow-hidden min-w-0 w-full">
-  <span className="truncate block w-full">
-    <SelectValue placeholder="Choose template" />
-  </span>
-</div>
-</SelectTrigger>
+                <SelectTrigger className="w-[200px] sm:w-[210px] md:w-[240px] max-w-full min-w-0 overflow-hidden">
+                  <div className="flex items-center overflow-hidden min-w-0 w-full">
+                    <span className="truncate block w-full">
+                      <SelectValue placeholder="Choose template" />
+                    </span>
+                  </div>
+                </SelectTrigger>
                 <SelectContent>
                   {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
@@ -2215,7 +2228,7 @@ ${code.html}
                 }
               />
 
-              <Button variant="outline" size="sm" onClick={() => setIsFullscreen(!isFullscreen)}>
+              <Button variant="outline" size="sm" onClick={handleFullscreenToggle}>
                 {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </Button>
 
@@ -2357,261 +2370,4 @@ ${code.html}
   )
 }
 
-    <div
-  ref={containerRef}
-w overflow-hidden relative" 
->
-
-{/* CODE EDITOR */}
-{(layout === "code" || layout === "split") && (
-  <div
-  style={
-    layout === "split"
-      ? { 
-        width: isMobile ? "100%" : `${splitRatio}%`,
-        height: isMobile ? `${splitRatio}%` : "100%",
-        }
-      : { height: "100%", width: "100%" }
-  }
-  className="flex flex-col border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 shrink-0 transition-none"
-  >
-    <Tabs
-      value={activeTab}
-      onValueChange={(value) => setActiveTab(value as keyof CodeContent)}
-      className="flex-1 flex flex-col"
-    >
-      {/* Tabs Header */}
-      <div className="bg-white dark:bg-gray-800 border-b px-4 overflow-x-auto scrollbar-hide">
-        <TabsList className="flex w-full min-w-max">
-        <TabsTrigger value="html" className="flex-1">HTML</TabsTrigger>
-        <TabsTrigger value="css" className="flex-1">CSS</TabsTrigger>
-          <TabsTrigger value="javascript" className="flex-1">JS</TabsTrigger>
-                  
-        </TabsList>
-      </div>
-
-      {/* Tabs Content */}
-      <div className="flex-1 overflow-hidden">
-        <TabsContent value="html" className="h-full m-0">
-          <MonacoEditor
-            language="html"
-            value={code.html}
-            onChange={(value) => handleCodeChange("html", value)}
-            theme={theme}
-            onEditorReady={(ed) => (activeEditorRef.current = ed)}
-          />
-        </TabsContent>
-
-        <TabsContent value="css" className="h-full m-0">
-          <MonacoEditor
-            language="css"
-            value={code.css}
-            onChange={(value) => handleCodeChange("css", value)}
-            theme={theme}
-            onEditorReady={(ed) => (activeEditorRef.current = ed)}
-          />
-        </TabsContent>
-
-        <TabsContent value="javascript" className="h-full m-0">
-          <MonacoEditor
-            language="javascript"
-            value={code.javascript}
-            onChange={(value) => handleCodeChange("javascript", value)}
-            theme={theme}
-            onEditorReady={(ed) => (activeEditorRef.current = ed)}
-          />
-        </TabsContent>
-      </div>
-    </Tabs>
-  </div>
-)}
-
-  className="flex-1 flex flex-col lg:flex-row overflow-hidden"
->
-
-  {/* CODE EDITOR */}
-  {(layout === "code" || layout === "split") && (
-    <div
-      className={`flex flex-col border-gray-200 dark:border-gray-700
-      min-h-[50vh] lg:min-h-0 w-full overflow-hidden ${
-        layout === "split" ? "lg:w-1/2 lg:border-r" : "w-full"
-      }`}
-    >
-      <Tabs
-        value={activeTab}
-        onValueChange={(value) =>
-          setActiveTab(value as keyof CodeContent)
-        }
-        className="flex-1 flex flex-col overflow-hidden"
-      >
-
-        {/* Tabs Header */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-2 sm:px-4">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="html">HTML</TabsTrigger>
-            <TabsTrigger value="css">CSS</TabsTrigger>
-            <TabsTrigger value="javascript">JS</TabsTrigger>
-          </TabsList>
-        </div>
-
-        {/* Tabs Content */}
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="html" className="h-full m-0">
-            <MonacoEditor
-              language="html"
-              value={code.html}
-              onChange={(value) =>
-                handleCodeChange("html", value)
-              }
-              theme={theme}
-              onEditorReady={(ed) =>
-                (activeEditorRef.current = ed)
-              }
-            />
-          </TabsContent>
-
-          <TabsContent value="css" className="h-full m-0">
-            <MonacoEditor
-              language="css"
-              value={code.css}
-              onChange={(value) =>
-                handleCodeChange("css", value)
-              }
-              theme={theme}
-              onEditorReady={(ed) =>
-                (activeEditorRef.current = ed)
-              }
-            />
-          </TabsContent>
-
-          <TabsContent value="javascript" className="h-full m-0">
-            <MonacoEditor
-              language="javascript"
-              value={code.javascript}
-              onChange={(value) =>
-                handleCodeChange("javascript", value)
-              }
-              theme={theme}
-              onEditorReady={(ed) =>
-                (activeEditorRef.current = ed)
-              }
-            />
-          </TabsContent>
-        </div>
-      </Tabs>
-    </div>
-  )}
-
-  {/* RESIZER - DESKTOP ONLY */}
-  {layout === "split" && (
-
-   <div
-  onMouseDown={handleDragStart}
-  onTouchStart={handleDragStart}
-  onDragStart={(e) => e.preventDefault()}
-  className="w-full h-3 md:w-2 md:h-full cursor-row-resize md:cursor-col-resize bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 active:bg-blue-600 transition shrink-0 z-10 flex items-center justify-center touch-none"
-  >
-  <div className="flex md:flex-col gap-1">
-  <div className="w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400"></div>
-  <div className="w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400"></div>
-   <div className="w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400"></div>
-  </div>
-     </div>
-          
-
-    <div
-      onMouseDown={handleMouseDown}
-      onDragStart={(e) => e.preventDefault()}
-      className="hidden lg:block w-2 cursor-col-resize bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 active:bg-blue-600 transition"
-      style={{ minWidth: "8px" }}
-    />
-
-  )}
-
-  {/* PREVIEW PANEL */}
-  {(layout === "preview" || layout === "split") && (
-    <div
-
-      style={layout === "split"
-        ? { 
-          width: isMobile ? "100%" : `${100 - splitRatio}%`,
-          height: isMobile ? `${100 - splitRatio}%` : "100%", 
-          }
-        : { height: "100%", width: "100%" }
-    }
-    className="flex flex-col shrink-0 relative transition-none"
-            >
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 flex items-center justify-between overflow-x-auto scrollbar-hide shrink-0">
-        <div className="flex  items-center gap-2 min-w-max">
-          <Play className="w-4 h-4 text-green-600 shrink-0" />
-
-      className={`flex flex-col bg-white dark:bg-gray-900
-      min-h-[50vh] lg:min-h-0 w-full overflow-hidden ${
-        layout === "split" ? "lg:w-1/2" : "w-full"
-      }`}
-    >
-
-      {/* Preview Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2 sm:p-3 flex flex-wrap items-center justify-between gap-2">
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Play className="w-4 h-4 text-green-600" />
-
-
-          <span className="font-medium text-gray-900 dark:text-white">
-            Live Preview
-          </span>
-
-          <Badge variant="secondary" className="text-xs shrink-0">
-            {autoRun ? "Auto-refresh" : "Manual"}
-          </Badge>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAutoRun(!autoRun)}
-            className="shrink-0"
-          >
-            {autoRun ? "Pause" : "Resume"}
-          </Button>
-
-          {!autoRun && (
-            <Button size="sm" onClick={runCodeManually} className="shrink-0">
-              Run
-            </Button>
-          )}
-        </div>
-      </div>
-
-
-      <div className={`flex-1 bg-white relative ${isResizing ? "pointer-events-none select-none" : ""}`}>
-        <iframe
-          ref={previewRef}
-          className="absolute inset-0 w-full h-full border-0"
-
-      {/* Preview Iframe */}
-      <div
-        className={`flex-1 min-h-[50vh] lg:min-h-0 bg-white dark:bg-gray-900 ${
-          isResizing ? "pointer-events-none" : ""
-        }`}
-      >
-        <iframe
-          ref={previewRef}
-          className={`w-full h-full border-0 ${
-            isResizing ? "pointer-events-none" : ""
-          }`}
-
-          title="Live Preview"
-          sandbox="allow-scripts allow-forms allow-popups allow-modals"
-        />
-      </div>
-      {isResizing && (
-                <div className="absolute inset-0 z-20 cursor-row-resize md:cursor-col-resize"></div>
-              )}
-    </div>
-  )}
-</div>
-</div>
-</>
-  )}
 
