@@ -154,6 +154,61 @@ const templates: Template[] = [
       javascript: `let timer=null,seconds=0,running=false;function startStop(){const b=document.getElementById('startBtn');if(running){clearInterval(timer);b.textContent='Start';running=false}else{timer=setInterval(()=>{seconds++;update()},1000);b.textContent='Stop';running=true}}function reset(){clearInterval(timer);seconds=0;running=false;document.getElementById('startBtn').textContent='Start';update()}function update(){const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;document.getElementById('display').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}`,
     },
   },
+  {
+    id: "calculator",
+    name: "Calculator",
+    description: "Basic calculator app",
+    icon: <Zap className="w-4 h-4" />,
+    content: {
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Calculator</title></head><body><div class="calculator"><div class="display" id="display">0</div><div class="buttons"><button onclick="clearDisplay()">C</button><button onclick="appendToDisplay('/')">/</button><button onclick="appendToDisplay('*')">*</button><button onclick="deleteLast()">⌫</button><button onclick="appendToDisplay('7')">7</button><button onclick="appendToDisplay('8')">8</button><button onclick="appendToDisplay('9')">9</button><button onclick="appendToDisplay('-')">-</button><button onclick="appendToDisplay('4')">4</button><button onclick="appendToDisplay('5')">5</button><button onclick="appendToDisplay('6')">6</button><button onclick="appendToDisplay('+')">+</button><button onclick="appendToDisplay('1')">1</button><button onclick="appendToDisplay('2')">2</button><button onclick="appendToDisplay('3')">3</button><button class="equals" onclick="calculate()">=</button><button class="zero" onclick="appendToDisplay('0')">0</button><button onclick="appendToDisplay('.')">.</button></div></div></body></html>`,
+      css: `body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:Arial,sans-serif}.calculator{background:#16213e;border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}.display{background:#0f3460;color:white;padding:20px;border-radius:10px;text-align:right;font-size:2rem;margin-bottom:15px;min-height:60px;word-break:break-all}.buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}button{padding:15px;border:none;border-radius:10px;font-size:1.1rem;cursor:pointer;background:#e94560;color:white;transition:all 0.2s}button:hover{opacity:0.8;transform:scale(0.95)}.equals{background:#0f3460;grid-row:span 2}.zero{grid-column:span 2}`,
+      javascript: `let display=document.getElementById('display');let currentVal='';function appendToDisplay(val){if(currentVal==='0'&&val!=='.')currentVal='';currentVal+=val;display.textContent=currentVal}function clearDisplay(){currentVal='';display.textContent='0'}function deleteLast(){currentVal=currentVal.slice(0,-1);display.textContent=currentVal||'0'}function calculate(){try{currentVal=String(eval(currentVal));display.textContent=currentVal}catch{display.textContent='Error';currentVal=''}}`,
+    },
+  },
+  {
+    id: "color-picker",
+    name: "Color Picker",
+    description: "Interactive color picker tool",
+    icon: <Palette className="w-4 h-4" />,
+    content: {
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Color Picker</title></head><body><div class="container"><h1>Color Picker</h1><div class="picker-wrap"><input type="color" id="colorPicker" value="#4f46e5"/></div><div class="preview" id="preview"></div><div class="values"><div class="value-box"><span>HEX</span><p id="hexVal">#4f46e5</p></div><div class="value-box"><span>RGB</span><p id="rgbVal"></p></div><div class="value-box"><span>HSL</span><p id="hslVal"></p></div></div><button onclick="copyHex()">Copy HEX</button></div></body></html>`,
+      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;font-family:'Segoe UI',sans-serif}.container{background:white;border-radius:20px;padding:2rem;box-shadow:0 10px 40px rgba(0,0,0,0.1);text-align:center;width:320px}h1{margin:0 0 1.5rem;color:#1e293b}.picker-wrap{margin-bottom:1rem}#colorPicker{width:80px;height:80px;border:none;border-radius:50%;cursor:pointer;padding:0}.preview{height:120px;border-radius:12px;margin:1rem 0;transition:background 0.3s;background:#4f46e5}.values{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1rem}.value-box{background:#f1f5f9;border-radius:8px;padding:0.5rem}.value-box span{font-size:0.7rem;color:#64748b;font-weight:600}.value-box p{margin:0.25rem 0 0;font-weight:700;font-size:0.85rem;color:#1e293b}button{background:#4f46e5;color:white;border:none;padding:0.75rem 2rem;border-radius:10px;cursor:pointer;font-weight:600;width:100%}`,
+      javascript: `const picker=document.getElementById('colorPicker')...picker.addEventListener('input',update);update()`,
+    },
+  },
+  {
+    id: "quiz-app",
+    name: "Quiz App",
+    description: "Interactive quiz application",
+    icon: <Zap className="w-4 h-4" />,
+    content: {
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Quiz App</title></head><body><div class="container"><div id="quiz"><h2 id="question"></h2><div id="options"></div><div id="result"></div><button id="nextBtn" onclick="nextQuestion()" style="display:none">Next</button></div><div id="score" style="display:none"><h2>Your Score: <span id="scoreVal"></span></h2><button onclick="restart()">Restart</button></div></div></body></html>`,
+      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#667eea,#764ba2);font-family:'Segoe UI',sans-serif}.container{background:white;border-radius:20px;padding:2rem;max-width:500px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2)}h2{color:#1e293b;margin-bottom:1.5rem}.option{display:block;width:100%;padding:1rem;margin:0.5rem 0;border:2px solid #e2e8f0;border-radius:10px;background:white;cursor:pointer;font-size:1rem;text-align:left;transition:all 0.2s}.option:hover{border-color:#667eea;background:#f0f0ff}.correct{border-color:#22c55e;background:#f0fdf4}.wrong{border-color:#ef4444;background:#fef2f2}#result{margin:1rem 0;font-weight:600;font-size:1.1rem}#nextBtn{padding:0.75rem 2rem;background:#667eea;color:white;border:none;border-radius:10px;cursor:pointer;font-size:1rem}#score{text-align:center}#score button{padding:0.75rem 2rem;background:#667eea;color:white;border:none;border-radius:10px;cursor:pointer}`,
+      javascript: `const questions=[{q:'What does HTML stand for?',options:['Hyper Text Markup Language','High Tech Modern Language','Hyper Transfer Mode Link','None'],answer:0},{q:'Which CSS property controls text size?',options:['font-weight','text-size','font-size','text-style'],answer:2},{q:'What does JS stand for?',options:['Java Style','JavaScript','Just Script','Java System'],answer:1},{q:'Which tag is used for links in HTML?',options:['<link>','<a>','<href>','<url>'],answer:1}];let current=0,score=0;function load(){const q=questions[current];document.getElementById('question').textContent=q.q;document.getElementById('options').innerHTML=q.options.map((o,i)=>\`<button class="option" onclick="check(\${i})">\${o}</button>\`).join('');document.getElementById('result').textContent='';document.getElementById('nextBtn').style.display='none'}function check(i){const q=questions[current];const btns=document.querySelectorAll('.option');btns.forEach(b=>b.disabled=true);if(i===q.answer){btns[i].classList.add('correct');document.getElementById('result').textContent='✅ Correct!';score++}else{btns[i].classList.add('wrong');btns[q.answer].classList.add('correct');document.getElementById('result').textContent='❌ Wrong!'}document.getElementById('nextBtn').style.display='block'}function nextQuestion(){current++;if(current<questions.length){load()}else{document.getElementById('quiz').style.display='none';document.getElementById('score').style.display='block';document.getElementById('scoreVal').textContent=score+'/'+questions.length}}function restart(){current=0;score=0;document.getElementById('quiz').style.display='block';document.getElementById('score').style.display='none';load()}load()`,
+    },
+  },
+  {
+    id: "portfolio",
+    name: "Portfolio Page",
+    description: "Personal portfolio template",
+    icon: <Layout className="w-4 h-4" />,
+    content: {
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Portfolio</title></head><body><nav class="nav"><div class="logo">MyPortfolio</div><div class="links"><a href="#about">About</a><a href="#projects">Projects</a><a href="#contact">Contact</a></div></nav><section class="hero"><h1>Hi, I'm <span>Alex</span></h1><p>Full Stack Developer & Designer</p><button>View My Work</button></section><section id="projects" class="projects"><h2>Projects</h2><div class="grid"><div class="card"><h3>Project One</h3><p>A cool web application</p></div><div class="card"><h3>Project Two</h3><p>Mobile-first design</p></div><div class="card"><h3>Project Three</h3><p>Open source tool</p></div></div></section></body></html>`,
+      css: `*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:white}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 3rem;position:fixed;width:100%;background:rgba(15,23,42,0.9);backdrop-filter:blur(10px);z-index:100}.logo{font-size:1.5rem;font-weight:bold;color:#7c3aed}.links a{color:#94a3b8;text-decoration:none;margin-left:2rem;transition:color 0.2s}.links a:hover{color:white}.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}.hero h1{font-size:4rem;margin-bottom:1rem}.hero span{color:#7c3aed}.hero p{color:#94a3b8;font-size:1.25rem;margin-bottom:2rem}.hero button{padding:1rem 2.5rem;background:#7c3aed;color:white;border:none;border-radius:50px;cursor:pointer;font-size:1rem}.projects{padding:5rem 3rem;text-align:center}.projects h2{font-size:2.5rem;margin-bottom:3rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}.card{background:#1e293b;border-radius:15px;padding:2rem;border:1px solid #334155}.card h3{color:#7c3aed;margin-bottom:1rem}.card p{color:#94a3b8}`,
+      javascript: `console.log('Portfolio loaded!')`,
+    },
+  },
+  {
+    id: "weather-card",
+    name: "Weather Card UI",
+    description: "Beautiful weather card UI",
+    icon: <FileText className="w-4 h-4" />,
+    content: {
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Weather Card</title></head><body><div class="container"><div class="card"><div class="top"><h2 class="city">New York</h2><p class="date">Monday, May 25</p></div><div class="middle"><div class="temp">24°C</div><div class="icon">⛅</div></div><p class="desc">Partly Cloudy</p><div class="details"><div class="detail"><span>💧</span><p>Humidity</p><p>65%</p></div><div class="detail"><span>💨</span><p>Wind</p><p>12 km/h</p></div><div class="detail"><span>👁️</span><p>Visibility</p><p>10 km</p></div></div></div></div></body></html>`,
+      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e);font-family:'Segoe UI',sans-serif}.card{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:25px;padding:2rem;width:320px;color:white;box-shadow:0 20px 60px rgba(0,0,0,0.4)}.top{margin-bottom:1.5rem}.city{font-size:1.8rem;margin:0}.date{opacity:0.8;margin:0.25rem 0 0}.middle{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem}.temp{font-size:4rem;font-weight:bold}.icon{font-size:4rem}.desc{opacity:0.8;margin-bottom:1.5rem}.details{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;background:rgba(255,255,255,0.15);border-radius:15px;padding:1rem;text-align:center}.detail span{font-size:1.5rem}.detail p{margin:0.25rem 0 0;font-size:0.85rem;opacity:0.9}.detail p:last-child{font-weight:bold;font-size:1rem}`,
+      javascript: `console.log('Weather card loaded!')`,
+    },
+  },
 ]
 
 type LayoutType = "split" | "preview" | "code"
@@ -225,61 +280,6 @@ export default function CodeEditor() {
     }
   };
 
-const containerRef = useRef<HTMLDivElement>(null)
-const previewRef = useRef<HTMLIFrameElement>(null)
-const [isMobile, setIsMobile] = useState(false)
-
-useEffect(() => {
-  const updateIsMobile = () => {
-    setIsMobile(window.innerWidth < 768)
-  }
-
-  updateIsMobile()
-  window.addEventListener("resize", updateIsMobile)
-
-  return () => {
-    window.removeEventListener("resize", updateIsMobile)
-  }
-}, [])
-
-const handleDragStart = () => {
-  isDragging.current = true;
-  setIsResizing(true);
-  document.body.style.userSelect = "none";
-};
-
-const handleDragMove = useCallback((clientX: number, clientY: number) => {
-  if (!isDragging.current || !containerRef.current) return;
-
-  const rect = containerRef.current.getBoundingClientRect();
-
-  let newRatio;
-  if (isMobile) {
-    newRatio = ((clientY - rect.top) / rect.height) * 100;
-  } else {
-    newRatio = ((clientX - rect.left) / rect.width) * 100;
-  }
-
-  const clampedRatio = Math.max(20, Math.min(80, newRatio));
-  setSplitRatio(clampedRatio);
-}, [isMobile]);
-
-const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
-  handleDragMove(e.clientX, e.clientY);
-}, [handleDragMove]);
-
-const handleTouchMove = useCallback((e: globalThis.TouchEvent) => {
-  if (isDragging.current) {
-    handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
-  }
-}, [handleDragMove]);
-
-const handleDragEnd = useCallback(() => {
-  isDragging.current = false;
-  setIsResizing(false);
-  document.body.style.userSelect = "auto";
-  document.body.style.cursor = "default";
-}, []);
 
   // Tracks which template is currently active
 
