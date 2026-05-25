@@ -186,45 +186,6 @@ export default function CodeEditor() {
   const [splitRatio, setSplitRatio] = useState(50)
   const [isResizing, setIsResizing] = useState(false)
 
-
-  // use effect for handling full screen mode
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
-  const handleFullscreenToggle = async () => {
-    try {
-      if (document.fullscreenElement) {
-        if (document.exitFullscreen) {
-          await document.exitFullscreen();
-        }
-        return;
-      }
-
-      if (isFullscreen) {
-        setIsFullscreen(false);
-        return;
-      }
-
-      if (containerRef.current?.requestFullscreen) {
-        await containerRef.current.requestFullscreen();
-        return;
-      }
-
-      setIsFullscreen(true);
-    } catch (err) {
-      console.error("Error attempting to toggle fullscreen:", err);
-      setIsFullscreen((prev) => !prev);
-    }
-  };
-
 const containerRef = useRef<HTMLDivElement>(null)
 
 
