@@ -27,9 +27,6 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 
-
-
-
 import JSZip from "jszip"
 import dynamic from "next/dynamic"
 import Link from "next/link"
@@ -120,13 +117,13 @@ const templates: Template[] = [
     description: "Modern landing page template",
     icon: <Layout className="w-4 h-4" />,
     content: {
-
       html: `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Landing Page</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header class="header">
@@ -201,7 +198,6 @@ const templates: Template[] = [
                     </div>
                 </div>
             </div>
-            
         </div>
     </section>
 
@@ -302,480 +298,14 @@ const templates: Template[] = [
             </div>
         </div>
     </footer>
+    <script src="script.js"></script>
 </body>
 </html>`,
-      css: `* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-}
-
-.header {
-    color: white;
-    background: #130a2e;
-    padding: 1rem 0;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-}
-
-.nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 2rem;
-}
-
-.nav-links a {
-    color: white;
-    text-decoration: none;
-    transition: opacity 0.3s;
-}
-
-.nav-links a:hover {
-    opacity: 0.8;
-}
-
-.hero {
-    height: 100vh;
-    background-color: #130a2e;
-    background-image: 
-        radial-gradient(circle at 15% 50%, rgba(102, 126, 234, 0.15), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(118, 75, 162, 0.15), transparent 25%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
-
-.hero-content {
-    max-width: 600px;
-    padding: 2rem;
-    position: relative;
-    z-index: 1;
-}
-
-.hero-title {
-    font-size: 4rem;
-    font-weight: 800;
-    margin-bottom: 1.25rem;
-    background: linear-gradient(to right, #ffffff, #c5bedb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: fadeInUp 1s ease-out;
-}
-
-.hero-subtitle {
-    font-size: 1.25rem;
-    color: #c5bedb;
-    margin-bottom: 2.5rem;
-    animation: fadeInUp 1s ease-out 0.2s both;
-}
-
-.cta-button {
-    color: #130a2e;
-    font-weight: 700;
-    border: none;
-    padding: 1rem 2.5rem;
-    font-size: 1.1rem;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    animation: fadeInUp 1s ease-out 0.4s both;
-}
-
-.cta-button:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 15px 25px -5px rgba(102, 126, 234, 0.6);
-}
-
-.section {
-    padding: 6rem 2rem;
-    background: #130a2e;
-    color: #ffffff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    scroll-margin-top: 70px;
-}
-
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.section-title {
-    font-size: 2.5rem;
-    text-align: center;
-    margin-bottom: 0.5rem;
-    color: #ffffff;
-    font-weight: 800;
-}
-
-.section-title.text-left {
-    text-align: left;
-}
-
-.section-subtitle {
-    font-size: 1.1rem;
-    text-align: center;
-    color: #c5bedb;
-    margin-bottom: 3.5rem;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.features {
-    background: #130a2e;
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2.5rem;
-}
-
-.feature-card {
-    background: #21134a;
-    border: 1px solid #3c257d;
-    border-radius: 20px;
-    padding: 2.5rem 2rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.feature-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 35px -10px rgba(102, 126, 234, 0.3);
-    border-color: #667eea;
-}
-
-.feature-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    background: rgba(102, 126, 234, 0.15);
-    color: #00f2fe;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.feature-card:hover .feature-icon {
-    background: linear-gradient(135deg, #00f2fe 0%, #667eea 100%);
-    color: #130a2e;
-}
-
-.feature-card h3 {
-    font-size: 1.35rem;
-    margin-bottom: 0.75rem;
-    color: #ffffff;
-    font-weight: 700;
-}
-
-.feature-card p {
-    color: #c5bedb;
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-
-.about {
-    background: #170d37;
-}
-
-.about-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.about-content h2 {
-    margin-bottom: 1.5rem;
-}
-
-.about-content p {
-    color: #c5bedb;
-    font-size: 1.05rem;
-    line-height: 1.7;
-    margin-bottom: 1.5rem;
-}
-
-.about-points {
-    margin-top: 2rem;
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.about-point {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.check-icon {
-    color: #00f2fe;
-    flex-shrink: 0;
-}
-
-.about-point span {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #ffffff;
-}
-
-/* Cleaned up removed SVG wrapper classes */
-
-.testimonials {
-    background: #130a2e;
-}
-
-.testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2.5rem;
-}
-
-.testimonial-card {
-    background: #21134a;
-    border: 1px solid #3c257d;
-    border-radius: 20px;
-    padding: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: all 0.3s ease;
-}
-
-.testimonial-card:hover {
-    box-shadow: 0 15px 35px -10px rgba(102, 126, 234, 0.3);
-    border-color: #667eea;
-}
-
-.stars {
-    color: #f59e0b;
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-}
-
-.testimonial-text {
-    font-size: 1rem;
-    color: #c5bedb;
-    font-style: italic;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-
-.user-info h4 {
-    font-size: 0.95rem;
-    color: #ffffff;
-    margin-bottom: 0.15rem;
-}
-
-.user-info span {
-    font-size: 0.8rem;
-    color: #c5bedb;
-}
-
-.footer {
-    background: #0b061d;
-    color: #a59ec0;
-    padding: 5rem 2rem 2rem;
-    border-top: 1px solid #21134a;
-}
-
-.footer-container {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.2fr;
-    gap: 4rem;
-    margin-bottom: 4rem;
-}
-
-.footer-brand {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-}
-
-.footer-brand .logo {
-    color: white;
-}
-
-.footer-brand p {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    max-width: 320px;
-}
-
-.social-icons {
-    display: flex;
-    gap: 1rem;
-}
-
-.social-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: #21134a;
-    color: #a59ec0;
-    transition: all 0.3s ease;
-}
-
-.social-icon:hover {
-    background: linear-gradient(135deg, #00f2fe 0%, #667eea 100%);
-    color: #130a2e;
-    transform: translateY(-3px);
-}
-
-.footer-links h4 {
-    color: white;
-    font-size: 1.05rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-}
-
-.footer-links ul {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.footer-links a {
-    color: #a59ec0;
-    text-decoration: none;
-    font-size: 0.95rem;
-    transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-    color: white;
-}
-
-.footer-links li {
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
-
-.footer-bottom {
-    border-top: 1px solid #21134a;
-    padding-top: 2rem;
-}
-
-.footer-bottom-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    font-size: 0.875rem;
-}
-
-.footer-legal {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.footer-legal a {
-    color: #a59ec0;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.footer-legal a:hover {
-    color: white;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@media (max-width: 968px) {
-    .footer-container {
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-    }
-}
-
-@media (max-width: 768px) {
-/* About section media queries removed as it is now centered by default */
-    .section {
-        padding: 4rem 1.5rem;
-    }
-    .footer-container {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
-    }
-    .footer-bottom-container {
-        flex-direction: column;
-        text-align: center;
-    }
-}
-`,
+      css: "", // CSS moved to global file
       javascript: `function handleCTA() {
     alert('Welcome! This is where you would redirect to signup or more info.');
 }
 
-// Add smooth scrolling for navigation links
 document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.nav-links a');
     
@@ -791,9 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
-
-/* Interactive effects script removed */`,
+});`,
     },
   },
   {
@@ -808,6 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Card</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -835,225 +364,18 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </div>
+    <script src="script.js"></script>
 </body>
 </html>`,
-      css: `body {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.container {
-    perspective: 1000px;
-}
-
-.card {
-    width: 350px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 2rem;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s;
-}
-
-.card:hover::before {
-    left: 100%;
-}
-
-.card:hover {
-    transform: translateY(-10px) rotateX(5deg);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.card-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-}
-
-.status {
-    background: #4ade80;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.card-content p {
-    margin-bottom: 1.5rem;
-    opacity: 0.9;
-    line-height: 1.6;
-}
-
-.stats {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 1.5rem;
-}
-
-.stat {
-    text-align: center;
-}
-
-.stat-number {
-    display: block;
-    font-size: 2rem;
-    font-weight: bold;
-    color: #4ade80;
-}
-
-.stat-label {
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-.card-footer {
-    display: flex;
-    gap: 1rem;
-}
-
-.btn-primary, .btn-secondary {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    flex: 1;
-}
-
-.btn-primary {
-    background: #4ade80;
-    color: #1f2937;
-}
-
-.btn-primary:hover {
-    background: #22c55e;
-    transform: translateY(-2px);
-}
-
-.btn-secondary {
-    background: transparent;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-}`,
+      css: "",
       javascript: `function handleAction() {
     const card = document.getElementById('interactiveCard');
-    
-    // Add a pulse effect
     card.style.animation = 'pulse 0.6s ease-in-out';
-    
-    // Show success message
     setTimeout(() => {
         alert('Action completed successfully!');
         card.style.animation = '';
     }, 600);
-}
-
-// Add CSS animation dynamically
-const style = document.createElement('style');
-style.textContent = \`
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-\`;
-document.head.appendChild(style);
-
-// Add particle effect on hover
-document.addEventListener('DOMContentLoaded', function() {
-    const card = document.getElementById('interactiveCard');
-    
-    card.addEventListener('mouseenter', function() {
-        createParticles();
-    });
-});
-
-function createParticles() {
-    const container = document.querySelector('.container');
-    
-    for (let i = 0; i < 6; i++) {
-        const particle = document.createElement('div');
-        particle.style.cssText = \`
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #4ade80;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: float 2s ease-out forwards;
-            left: \${Math.random() * 100}%;
-            top: \${Math.random() * 100}%;
-        \`;
-        
-        container.appendChild(particle);
-        
-        setTimeout(() => {
-            particle.remove();
-        }, 2000);
-    }
-}
-
-// Add float animation
-const floatStyle = document.createElement('style');
-floatStyle.textContent = \`
-    @keyframes float {
-        0% {
-            opacity: 1;
-            transform: translateY(0px);
-        }
-        100% {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-    }
-\`;
-document.head.appendChild(floatStyle);`,
-
-    },
-  },
-  {
-    id: "interactive-card",
-    name: "Interactive Card",
-    description: "Animated card component",
-    icon: <Palette className="w-4 h-4" />,
-    content: {
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Card</title></head><body><div class="container"><div class="card" id="card"><div class="card-header"><h2>Interactive Card</h2><span class="status">Active</span></div><div class="card-content"><p>Hover over me!</p><div class="stats"><div class="stat"><span class="stat-number">42</span><span class="stat-label">Projects</span></div><div class="stat"><span class="stat-number">1.2k</span><span class="stat-label">Users</span></div></div></div><div class="card-footer"><button onclick="handleAction()">Take Action</button></div></div></div></body></html>`,
-      css: `body{margin:0;min-height:100vh;background:linear-gradient(135deg,#1e3c72,#2a5298);font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center}.card{width:350px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:20px;padding:2rem;color:white;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s ease;cursor:pointer}.card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(0,0,0,0.3)}.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}.status{background:#4ade80;padding:.25rem .75rem;border-radius:20px;font-size:.8rem}.stats{display:flex;gap:2rem;margin-bottom:1.5rem}.stat-number{display:block;font-size:2rem;font-weight:bold;color:#4ade80}.card-footer button{width:100%;padding:.75rem;background:#4ade80;color:#1f2937;border:none;border-radius:10px;cursor:pointer;font-weight:600}`,
-      javascript: `function handleAction(){const card=document.getElementById('card');card.style.animation='pulse 0.6s';setTimeout(()=>{alert('Action!');card.style.animation=''},600)}const s=document.createElement('style');s.textContent='@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}';document.head.appendChild(s)`,
+}`,
     },
   },
   {
@@ -1062,8 +384,33 @@ document.head.appendChild(floatStyle);`,
     description: "Interactive todo application",
     icon: <Zap className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Todo</title></head><body><div class="app"><div class="container"><h1>Todo App</h1><div class="input-section"><input type="text" id="todoInput" placeholder="Add a task..."/><button onclick="addTodo()">Add</button></div><ul id="todoList" class="todo-list"></ul><div class="stats"><span id="todoCount">0 remaining</span><button onclick="clearCompleted()">Clear Done</button></div></div></div></body></html>`,
-      css: `*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:2rem}.container{background:white;border-radius:15px;padding:2rem;max-width:500px;margin:0 auto}h1{text-align:center;color:#333;margin-bottom:2rem}.input-section{display:flex;gap:.5rem;margin-bottom:1.5rem}#todoInput{flex:1;padding:1rem;border:2px solid #e1e5e9;border-radius:10px;font-size:1rem;outline:none}.input-section button{padding:1rem 1.5rem;background:#667eea;color:white;border:none;border-radius:10px;cursor:pointer}.todo-item{display:flex;align-items:center;padding:1rem;border:1px solid #e1e5e9;border-radius:10px;margin-bottom:.5rem}.todo-checkbox{margin-right:1rem;width:20px;height:20px}.todo-text{flex:1}.delete-btn{background:#ef4444;color:white;border:none;padding:.5rem 1rem;border-radius:5px;cursor:pointer}.completed{opacity:.6;text-decoration:line-through}.stats{display:flex;justify-content:space-between;padding-top:1rem;border-top:1px solid #e1e5e9}.stats button{background:transparent;border:1px solid #e1e5e9;padding:.5rem 1rem;border-radius:5px;cursor:pointer}`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <div class="container">
+            <h1>Todo App</h1>
+            <div class="input-section">
+                <input type="text" id="todoInput" placeholder="Add a task..."/>
+                <button onclick="addTodo()">Add</button>
+            </div>
+            <ul id="todoList" class="todo-list"></ul>
+            <div class="stats">
+                <span id="todoCount">0 remaining</span>
+                <button onclick="clearCompleted()">Clear Done</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`,
+      css: "",
       javascript: `let todos=[{id:1,text:'Learn HTML & CSS',completed:true},{id:2,text:'Build a todo app',completed:false}];function addTodo(){const i=document.getElementById('todoInput');const t=i.value.trim();if(!t)return;todos.push({id:Date.now(),text:t,completed:false});i.value='';render()}function deleteTodo(id){todos=todos.filter(t=>t.id!==id);render()}function toggleTodo(id){const t=todos.find(t=>t.id===id);if(t)t.completed=!t.completed;render()}function clearCompleted(){todos=todos.filter(t=>!t.completed);render()}function render(){document.getElementById('todoList').innerHTML=todos.map(t=>\`<li class="todo-item \${t.completed?'completed':''}"><input type="checkbox" class="todo-checkbox" \${t.completed?'checked':''} onchange="toggleTodo(\${t.id})"/><span class="todo-text">\${t.text}</span><button class="delete-btn" onclick="deleteTodo(\${t.id})">Delete</button></li>\`).join('');document.getElementById('todoCount').textContent=\`\${todos.filter(t=>!t.completed).length} remaining\`}document.addEventListener('DOMContentLoaded',()=>{document.getElementById('todoInput').addEventListener('keypress',e=>{if(e.key==='Enter')addTodo()});render()})`,
     },
   },
@@ -1073,8 +420,27 @@ document.head.appendChild(floatStyle);`,
     description: "Simple stopwatch",
     icon: <Timer className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Stopwatch</title></head><body><div class="container"><h1>Stopwatch</h1><div class="display" id="display">00:00:00</div><div class="buttons"><button onclick="startStop()" id="startBtn">Start</button><button onclick="reset()">Reset</button></div></div></body></html>`,
-      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e);font-family:'Segoe UI',sans-serif}.container{text-align:center;color:white}h1{font-size:2rem;margin-bottom:1rem;letter-spacing:4px;text-transform:uppercase}.display{font-size:5rem;font-weight:bold;margin:2rem 0;color:#00d4ff;letter-spacing:4px}.buttons{display:flex;gap:1rem;justify-content:center}button{padding:1rem 2.5rem;font-size:1rem;border:none;border-radius:50px;cursor:pointer;font-weight:600;background:#00d4ff;color:#1a1a2e;transition:all 0.3s}button:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,212,255,0.3)}`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Stopwatch</h1>
+        <div class="display" id="display">00:00:00</div>
+        <div class="buttons">
+            <button onclick="startStop()" id="startBtn">Start</button>
+            <button onclick="reset()">Reset</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`,
+      css: "",
       javascript: `let timer=null,seconds=0,running=false;function startStop(){const b=document.getElementById('startBtn');if(running){clearInterval(timer);b.textContent='Start';running=false}else{timer=setInterval(()=>{seconds++;update()},1000);b.textContent='Stop';running=true}}function reset(){clearInterval(timer);seconds=0;running=false;document.getElementById('startBtn').textContent='Start';update()}function update(){const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;document.getElementById('display').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}`,
     },
   },
@@ -1101,34 +467,6 @@ export default function CodeEditor() {
 
   const [activeTab, setActiveTab] = useState<keyof CodeContent>("html")
   const [theme, setTheme] = useState<"light" | "dark">("light")
-  const [paletteOpen, setPaletteOpen] = useState(false)
-  const [autoRun, setAutoRun] = useState(true)
-  const [splitRatio, setSplitRatio] = useState(50)
-  const [isResizing, setIsResizing] = useState(false)
-
-const containerRef = useRef<HTMLDivElement>(null)
-
-
-  // Tracks which template is currently active
-
-  const [isMobile, setIsMobile] = useState(false)
-  const [consoleErrors, setConsoleErrors] = useState<Array<{message: string; line?: number; col?: number}>>([])
-  const [consoleOpen, setConsoleOpen] = useState(false)
-  const [moreSheetOpen, setMoreSheetOpen] = useState(false)
-
-  const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null)
-  const [templateSnapshots, setTemplateSnapshots] = useState<Record<string, CodeContent>>(() => {
-    if (typeof window === "undefined") return {}
-    try {
-      const saved = localStorage.getItem("webify_template_snapshots")
-      if (saved) return JSON.parse(saved) as Record<string, CodeContent>
-    } catch {
-      // corrupted storage — fall through
-    }
-    return {}
-  })
-
-  const isDragging = useRef(false)
   const previewRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
@@ -1165,7 +503,6 @@ const containerRef = useRef<HTMLDivElement>(null)
     const combinedCode = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${code.css}</style></head><body>${code.html}<script>(function(){try{${code.javascript}}catch(e){var el=document.createElement('div');el.style.cssText='padding:12px;color:#b91c1c;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el)}})()<\/script></body></html>`
     previewRef.current.srcdoc = combinedCode
   }, [code])
-
 
   const handleCodeChange = (language: keyof CodeContent, value: string) => {
     setCode((prev) => ({ ...prev, [language]: value }))
