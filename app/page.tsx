@@ -7,7 +7,7 @@ const safeBase64Decode = (str: string) =>
   decodeURIComponent(escape(atob(str)));
 
 import type React from "react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -24,8 +24,13 @@ import {
   Moon,
   Link as LinkIcon,
   Timer,
+  Search,
+  ChevronsUp,
+  ChevronsDown,
+  MousePointerClick,
 } from "lucide-react"
 import { toast } from "sonner"
+import { CommandPalette, type Command } from "@/components/ui/command-palette"
 
 
 
@@ -1046,17 +1051,6 @@ document.head.appendChild(floatStyle);`,
     },
   },
   {
-    id: "interactive-card",
-    name: "Interactive Card",
-    description: "Animated card component",
-    icon: <Palette className="w-4 h-4" />,
-    content: {
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Card</title></head><body><div class="container"><div class="card" id="card"><div class="card-header"><h2>Interactive Card</h2><span class="status">Active</span></div><div class="card-content"><p>Hover over me!</p><div class="stats"><div class="stat"><span class="stat-number">42</span><span class="stat-label">Projects</span></div><div class="stat"><span class="stat-number">1.2k</span><span class="stat-label">Users</span></div></div></div><div class="card-footer"><button onclick="handleAction()">Take Action</button></div></div></div></body></html>`,
-      css: `body{margin:0;min-height:100vh;background:linear-gradient(135deg,#1e3c72,#2a5298);font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center}.card{width:350px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:20px;padding:2rem;color:white;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s ease;cursor:pointer}.card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(0,0,0,0.3)}.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}.status{background:#4ade80;padding:.25rem .75rem;border-radius:20px;font-size:.8rem}.stats{display:flex;gap:2rem;margin-bottom:1.5rem}.stat-number{display:block;font-size:2rem;font-weight:bold;color:#4ade80}.card-footer button{width:100%;padding:.75rem;background:#4ade80;color:#1f2937;border:none;border-radius:10px;cursor:pointer;font-weight:600}`,
-      javascript: `function handleAction(){const card=document.getElementById('card');card.style.animation='pulse 0.6s';setTimeout(()=>{alert('Action!');card.style.animation=''},600)}const s=document.createElement('style');s.textContent='@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}';document.head.appendChild(s)`,
-    },
-  },
-  {
     id: "todo-app",
     name: "Todo App",
     description: "Interactive todo application",
@@ -1101,7 +1095,13 @@ export default function CodeEditor() {
 
   const [activeTab, setActiveTab] = useState<keyof CodeContent>("html")
   const [theme, setTheme] = useState<"light" | "dark">("light")
+  const [paletteOpen, setPaletteOpen] = useState(false)
   const previewRef = useRef<HTMLIFrameElement>(null)
+  // Points to the editor of the currently visible tab (Radix unmounts inactive tabs).
+  const activeEditorRef = useRef<{
+    focus: () => void
+    getAction: (id: string) => { run: () => void | Promise<void> } | null
+  } | null>(null)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
@@ -1187,8 +1187,113 @@ export default function CodeEditor() {
     localStorage.setItem("theme", next)
   }
 
+  // Global Ctrl/Cmd+K to toggle the command palette. Capture phase so it beats
+  // Monaco's own keybindings while an editor is focused.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault()
+        e.stopPropagation()
+        setPaletteOpen((o) => !o)
+      }
+    }
+    window.addEventListener("keydown", onKeyDown, true)
+    return () => window.removeEventListener("keydown", onKeyDown, true)
+  }, [])
+
+  const commands = useMemo<Command[]>(() => {
+    const tabCmd = (
+      id: string,
+      label: string,
+      tab: keyof CodeContent,
+      icon: React.ReactNode,
+    ): Command => ({
+      id,
+      label,
+      group: "Editor",
+      icon,
+      keywords: tab,
+      perform: () => setActiveTab(tab),
+    })
+
+    const cursorCmd = (
+      id: string,
+      label: string,
+      description: string,
+      actionId: string,
+      icon: React.ReactNode,
+    ): Command => ({
+      id,
+      label,
+      description,
+      group: "Multi-cursor",
+      icon,
+      keywords: "cursor multi multiple selection caret",
+      perform: () => {
+        const ed = activeEditorRef.current
+        if (!ed) return
+        ed.focus()
+        ed.getAction(actionId)?.run()
+      },
+    })
+
+    return [
+      tabCmd("go-html", "Go to HTML", "html", <FileText className="w-4 h-4" />),
+      tabCmd("go-css", "Go to CSS", "css", <Palette className="w-4 h-4" />),
+      tabCmd("go-js", "Go to JavaScript", "javascript", <Zap className="w-4 h-4" />),
+
+      cursorCmd("mc-above", "Add cursor above", "Ctrl+Alt+↑", "editor.action.insertCursorAbove", <ChevronsUp className="w-4 h-4" />),
+      cursorCmd("mc-below", "Add cursor below", "Ctrl+Alt+↓", "editor.action.insertCursorBelow", <ChevronsDown className="w-4 h-4" />),
+      cursorCmd("mc-next", "Add next occurrence to selection", "Ctrl+D", "editor.action.addSelectionToNextFindMatch", <MousePointerClick className="w-4 h-4" />),
+      cursorCmd("mc-all", "Select all occurrences", "Ctrl+Shift+L", "editor.action.selectHighlights", <MousePointerClick className="w-4 h-4" />),
+
+      {
+        id: "download",
+        label: "Download project",
+        description: "ZIP",
+        group: "Actions",
+        icon: <Download className="w-4 h-4" />,
+        keywords: "export zip save",
+        perform: () => {
+          void downloadCode()
+        },
+      },
+      {
+        id: "share",
+        label: "Copy shareable link",
+        group: "Actions",
+        icon: <LinkIcon className="w-4 h-4" />,
+        keywords: "url copy",
+        perform: () => {
+          void copyShareLink()
+        },
+      },
+      {
+        id: "theme",
+        label: "Switch theme",
+        description: theme === "light" ? "Dark" : "Light",
+        group: "Actions",
+        icon: theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />,
+        keywords: "dark light mode appearance",
+        perform: () => toggleTheme(),
+      },
+      ...templates.map(
+        (t): Command => ({
+          id: `tpl-${t.id}`,
+          label: t.name,
+          group: "Templates",
+          icon: <Code2 className="w-4 h-4" />,
+          keywords: "template load example",
+          perform: () => loadTemplate(t.id),
+        }),
+      ),
+    ]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme])
+
   return (
     <AppErrorBoundary>
+      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} commands={commands} />
       <div className="h-[100dvh] flex flex-col bg-gray-50 dark:bg-gray-900">
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 flex items-center gap-2">
           <Link href="/" className="flex items-center gap-1.5 mr-2">
@@ -1206,6 +1311,19 @@ export default function CodeEditor() {
             </SelectContent>
           </Select>
           <div className="ml-auto flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPaletteOpen(true)}
+              title="Command palette (Ctrl/Cmd + K)"
+              className="w-56 justify-start text-gray-500 dark:text-gray-400"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              <span>Search commands...</span>
+              <kbd className="ml-auto rounded border border-gray-200 px-1.5 py-0.5 text-[10px] dark:border-gray-600">
+                ⌘K
+              </kbd>
+            </Button>
             <Button variant="outline" size="sm" onClick={copyShareLink}><LinkIcon className="w-4 h-4 mr-1" />Share</Button>
             <Button variant="outline" size="sm" onClick={downloadCode}><Download className="w-4 h-4 mr-1" />Download</Button>
             <Button variant="outline" size="sm" onClick={toggleTheme}>{theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}</Button>
@@ -1224,13 +1342,13 @@ export default function CodeEditor() {
               </div>
               <div className="flex-1 overflow-hidden">
                 <TabsContent value="html" className="h-full m-0">
-                  <MonacoEditor language="html" value={code.html} onChange={(v) => handleCodeChange("html", v)} theme={theme} />
+                  <MonacoEditor language="html" value={code.html} onChange={(v) => handleCodeChange("html", v)} theme={theme} onEditorReady={(ed) => { if (ed) activeEditorRef.current = ed }} />
                 </TabsContent>
                 <TabsContent value="css" className="h-full m-0">
-                  <MonacoEditor language="css" value={code.css} onChange={(v) => handleCodeChange("css", v)} theme={theme} />
+                  <MonacoEditor language="css" value={code.css} onChange={(v) => handleCodeChange("css", v)} theme={theme} onEditorReady={(ed) => { if (ed) activeEditorRef.current = ed }} />
                 </TabsContent>
                 <TabsContent value="javascript" className="h-full m-0">
-                  <MonacoEditor language="javascript" value={code.javascript} onChange={(v) => handleCodeChange("javascript", v)} theme={theme} />
+                  <MonacoEditor language="javascript" value={code.javascript} onChange={(v) => handleCodeChange("javascript", v)} theme={theme} onEditorReady={(ed) => { if (ed) activeEditorRef.current = ed }} />
                 </TabsContent>
               </div>
             </Tabs>

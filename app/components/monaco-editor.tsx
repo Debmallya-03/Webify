@@ -117,7 +117,7 @@ export default function MonacoEditor({
         snippetSuggestions: "top",
         emptySelectionClipboard: false,
         copyWithSyntaxHighlighting: true,
-        multiCursorModifier: "alt",
+        multiCursorModifier: "ctrlCmd",
         accessibilitySupport: "auto",
         quickSuggestions: {
           other: true,
