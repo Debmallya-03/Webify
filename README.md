@@ -89,6 +89,31 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 💖 Contributors
+
+Thanks to all the amazing people who contribute to **Webify** 🚀
+
+<p align="center">
+  <a href="https://github.com/Debmallya-03/Webify/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=Debmallya-03/Webify" alt="Contributors"/>
+  </a>
+</p>
+
+<br>
+
+## ⭐ Project Support
+
+<p align="center">
+  <a href="https://github.com/Debmallya-03/Webify/stargazers">
+    <img src="https://img.shields.io/github/stars/Debmallya-03/Webify?style=social" alt="Stars">
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/Debmallya-03/Webify/network/members">
+    <img src="https://img.shields.io/github/forks/Debmallya-03/Webify?style=social" alt="Forks">
+  </a>
+</p>
+
 ---
 
 > Created with ❤️ by [Debmallya Bhandari](https://github.com/Debmallya-03)
