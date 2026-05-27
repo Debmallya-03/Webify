@@ -1,59 +1,50 @@
 "use client"
 
-//(after "use client", before imports)
 const safeBase64Encode = (str: string) =>
   btoa(unescape(encodeURIComponent(str)));
 
 const safeBase64Decode = (str: string) =>
   decodeURIComponent(escape(atob(str)));
 
-
 import type React from "react"
-
-import { useState, useEffect, useMemo, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-
-import { CopyButton } from "@/components/ui/copy-button"
-import { CommandPalette, type Command } from "@/components/ui/command-palette"
 
 import {
   Code2,
   Play,
   Download,
-  Upload,
   Layout,
-  Maximize2,
-  Minimize2,
   FileText,
   Palette,
   Zap,
   Sun,
   Moon,
-  Search,
   Link as LinkIcon,
-  Undo2,
-  Redo2,
   Timer,
 } from "lucide-react"
-import { toast } from 'sonner'
+import { toast } from "sonner"
+
+
 
 
 import JSZip from "jszip"
 import dynamic from "next/dynamic"
 import Link from "next/link"
-// Monaco Editor must be loaded client-side only.
-// It directly accesses browser APIs (window, Worker) that don't exist in Node.
-// Removing `ssr: false` or moving this import to a Server Component will
-// cause a hydration crash. Keep this dynamic import exactly as-is.
-// Dynamically import Monaco Editor to avoid SSR issues
+import {
+  EditorErrorBoundary,
+  PreviewErrorBoundary,
+  AppErrorBoundary,
+} from "./components/error-boundary"
+
 const MonacoEditor = dynamic(() => import("./components/monaco-editor"), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-gray-800">Loading editor...</div>
+    <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-500">
+      Loading editor...
+    </div>
   ),
 })
 
@@ -69,117 +60,37 @@ interface HtmlValidationResult {
 }
 
 const voidHtmlTags = new Set([
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr",
+  "area","base","br","col","embed","hr","img","input","link","meta",
+  "param","source","track","wbr",
 ])
 
 function createPreviewErrorHtml(message: string) {
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>HTML Syntax Error</title>
-        <style>
-          body {
-            margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            font-family: Arial, sans-serif;
-            background: #fef2f2;
-            color: #991b1b;
-          }
-          .panel {
-            max-width: 640px;
-            padding: 24px;
-            margin: 24px;
-            border: 1px solid #fecaca;
-            border-radius: 16px;
-            background: white;
-            box-shadow: 0 12px 40px rgba(153, 27, 27, 0.12);
-          }
-          h1 {
-            margin: 0 0 12px;
-            font-size: 20px;
-          }
-          p {
-            margin: 0;
-            line-height: 1.6;
-            white-space: pre-wrap;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="panel">
-          <h1>HTML syntax error</h1>
-          <p>${message}</p>
-        </div>
-      </body>
-    </html>
-  `
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><style>body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:Arial,sans-serif;background:#fef2f2;color:#991b1b}.panel{max-width:640px;padding:24px;margin:24px;border:1px solid #fecaca;border-radius:16px;background:white;box-shadow:0 12px 40px rgba(153,27,27,0.12)}h1{margin:0 0 12px;font-size:20px}p{margin:0;line-height:1.6;white-space:pre-wrap}</style></head><body><div class="panel"><h1>HTML syntax error</h1><p>${message}</p></div></body></html>`
 }
 
 function validateHtmlSyntax(html: string): HtmlValidationResult {
   let sanitizedHtml = html.replace(/<!--[\s\S]*?-->/g, "")
-
   sanitizedHtml = sanitizedHtml.replace(
     /<(script|style|textarea|title)\b([^>]*)>[\s\S]*?<\/\1>/gi,
     (_match, tagName, attributes) => `<${tagName}${attributes}></${tagName}>`
   )
-
   const tagPattern = /<\/?([a-zA-Z][\w:-]*)([^>]*)>/g
   const openTags: string[] = []
   let match: RegExpExecArray | null
-
   while ((match = tagPattern.exec(sanitizedHtml))) {
     const [fullTag, rawTagName] = match
     const tagName = rawTagName.toLowerCase()
     const isClosingTag = fullTag.startsWith("</")
     const isSelfClosingTag = fullTag.endsWith("/>") || voidHtmlTags.has(tagName)
-
     if (isClosingTag) {
       const lastOpenTag = openTags.pop()
-      if (!lastOpenTag) {
-        return { isValid: false, message: `Unexpected closing tag </${tagName}>.` }
-      }
-
-      if (lastOpenTag !== tagName) {
-        return {
-          isValid: false,
-          message: `Expected </${lastOpenTag}> before </${tagName}>.`,
-        }
-      }
-
+      if (!lastOpenTag) return { isValid: false, message: `Unexpected closing tag </${tagName}>.` }
+      if (lastOpenTag !== tagName) return { isValid: false, message: `Expected </${lastOpenTag}> before </${tagName}>.` }
       continue
     }
-
-    if (!isSelfClosingTag) {
-      openTags.push(tagName)
-    }
+    if (!isSelfClosingTag) openTags.push(tagName)
   }
-
-  if (openTags.length > 0) {
-    const lastOpenTag = openTags[openTags.length - 1]
-    return {
-      isValid: false,
-      message: `Unclosed <${lastOpenTag}> tag.`,
-    }
-  }
-
+  if (openTags.length > 0) return { isValid: false, message: `Unclosed <${openTags[openTags.length - 1]}> tag.` }
   return { isValid: true }
 }
 
@@ -209,6 +120,7 @@ const templates: Template[] = [
     description: "Modern landing page template",
     icon: <Layout className="w-4 h-4" />,
     content: {
+
       html: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1130,6 +1042,18 @@ floatStyle.textContent = \`
     }
 \`;
 document.head.appendChild(floatStyle);`,
+
+    },
+  },
+  {
+    id: "interactive-card",
+    name: "Interactive Card",
+    description: "Animated card component",
+    icon: <Palette className="w-4 h-4" />,
+    content: {
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Card</title></head><body><div class="container"><div class="card" id="card"><div class="card-header"><h2>Interactive Card</h2><span class="status">Active</span></div><div class="card-content"><p>Hover over me!</p><div class="stats"><div class="stat"><span class="stat-number">42</span><span class="stat-label">Projects</span></div><div class="stat"><span class="stat-number">1.2k</span><span class="stat-label">Users</span></div></div></div><div class="card-footer"><button onclick="handleAction()">Take Action</button></div></div></div></body></html>`,
+      css: `body{margin:0;min-height:100vh;background:linear-gradient(135deg,#1e3c72,#2a5298);font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center}.card{width:350px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:20px;padding:2rem;color:white;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s ease;cursor:pointer}.card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(0,0,0,0.3)}.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}.status{background:#4ade80;padding:.25rem .75rem;border-radius:20px;font-size:.8rem}.stats{display:flex;gap:2rem;margin-bottom:1.5rem}.stat-number{display:block;font-size:2rem;font-weight:bold;color:#4ade80}.card-footer button{width:100%;padding:.75rem;background:#4ade80;color:#1f2937;border:none;border-radius:10px;cursor:pointer;font-weight:600}`,
+      javascript: `function handleAction(){const card=document.getElementById('card');card.style.animation='pulse 0.6s';setTimeout(()=>{alert('Action!');card.style.animation=''},600)}const s=document.createElement('style');s.textContent='@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}';document.head.appendChild(s)`,
     },
   },
   {
@@ -1138,407 +1062,46 @@ document.head.appendChild(floatStyle);`,
     description: "Interactive todo application",
     icon: <Zap className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo App</title>
-</head>
-<body>
-    <div class="app">
-        <div class="container">
-            <h1>My Todo App</h1>
-            <div class="input-section">
-                <input type="text" id="todoInput" placeholder="Add a new task..." />
-                <button onclick="addTodo()">Add</button>
-            </div>
-            <div class="filters">
-                <button class="filter-btn active" onclick="filterTodos('all')">All</button>
-                <button class="filter-btn" onclick="filterTodos('active')">Active</button>
-                <button class="filter-btn" onclick="filterTodos('completed')">Completed</button>
-            </div>
-            <ul id="todoList" class="todo-list"></ul>
-            <div class="stats">
-                <span id="todoCount">0 tasks remaining</span>
-                <button onclick="clearCompleted()">Clear Completed</button>
-            </div>
-        </div>
-    </div>
-</body>
-</html>`,
-      css: `* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 2rem;
-}
-
-.app {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-}
-
-.container {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    width: 100%;
-    max-width: 500px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 2rem;
-    font-size: 2rem;
-}
-
-.input-section {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-#todoInput {
-    flex: 1;
-    padding: 1rem;
-    border: 2px solid #e1e5e9;
-    border-radius: 10px;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.3s;
-}
-
-#todoInput:focus {
-    border-color: #667eea;
-}
-
-.input-section button {
-    padding: 1rem 1.5rem;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.3s;
-}
-
-.input-section button:hover {
-    background: #5a67d8;
-}
-
-.filters {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    justify-content: center;
-}
-
-.filter-btn {
-    padding: 0.5rem 1rem;
-    border: 2px solid #e1e5e9;
-    background: white;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.filter-btn.active,
-.filter-btn:hover {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
-
-.todo-list {
-    list-style: none;
-    margin-bottom: 1.5rem;
-}
-
-.todo-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border: 1px solid #e1e5e9;
-    border-radius: 10px;
-    margin-bottom: 0.5rem;
-    transition: all 0.3s;
-    animation: slideIn 0.3s ease-out;
-}
-
-.todo-item:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.todo-item.completed {
-    opacity: 0.6;
-    text-decoration: line-through;
-}
-
-.todo-checkbox {
-    margin-right: 1rem;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-}
-
-.todo-text {
-    flex: 1;
-    font-size: 1rem;
-}
-
-.delete-btn {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.delete-btn:hover {
-    background: #dc2626;
-}
-
-.stats {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid #e1e5e9;
-    color: #666;
-}
-
-.stats button {
-    background: transparent;
-    border: 1px solid #e1e5e9;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.stats button:hover {
-    background: #f3f4f6;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}`,
-      javascript: `let todos = [];
-let currentFilter = 'all';
-
-function addTodo() {
-    const input = document.getElementById('todoInput');
-    const text = input.value.trim();
-    
-    if (text === '') return;
-    
-    const todo = {
-        id: Date.now(),
-        text: text,
-        completed: false
-    };
-    
-    todos.push(todo);
-    input.value = '';
-    renderTodos();
-    updateStats();
-}
-
-function deleteTodo(id) {
-    todos = todos.filter(todo => todo.id !== id);
-    renderTodos();
-    updateStats();
-}
-
-function toggleTodo(id) {
-    const todo = todos.find(todo => todo.id === id);
-    if (todo) {
-        todo.completed = !todo.completed;
-        renderTodos();
-        updateStats();
-    }
-}
-
-function filterTodos(filter) {
-    currentFilter = filter;
-    
-    // Update active filter button
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    renderTodos();
-}
-
-function clearCompleted() {
-    todos = todos.filter(todo => !todo.completed);
-    renderTodos();
-    updateStats();
-}
-
-function renderTodos() {
-    const todoList = document.getElementById('todoList');
-    let filteredTodos = todos;
-    
-    if (currentFilter === 'active') {
-        filteredTodos = todos.filter(todo => !todo.completed);
-    } else if (currentFilter === 'completed') {
-        filteredTodos = todos.filter(todo => todo.completed);
-    }
-    
-    todoList.innerHTML = filteredTodos.map(todo => \`
-        <li class="todo-item \${todo.completed ? 'completed' : ''}">
-            <input 
-                type="checkbox" 
-                class="todo-checkbox" 
-                \${todo.completed ? 'checked' : ''}
-                onchange="toggleTodo(\${todo.id})"
-            />
-            <span class="todo-text">\${todo.text}</span>
-            <button class="delete-btn" onclick="deleteTodo(\${todo.id})">Delete</button>
-        </li>
-    \`).join('');
-}
-
-function updateStats() {
-    const activeTodos = todos.filter(todo => !todo.completed).length;
-    const todoCount = document.getElementById('todoCount');
-    todoCount.textContent = \`\${activeTodos} task\${activeTodos !== 1 ? 's' : ''} remaining\`;
-}
-
-// Add enter key support
-document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('todoInput');
-    input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            addTodo();
-        }
-    });
-    
-    // Add some sample todos
-    todos = [
-        { id: 1, text: 'Learn HTML, CSS, and JavaScript', completed: true },
-        { id: 2, text: 'Build an awesome todo app', completed: false },
-        { id: 3, text: 'Share your creation with friends', completed: false }
-    ];
-    
-    renderTodos();
-    updateStats();
-});`,
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Todo</title></head><body><div class="app"><div class="container"><h1>Todo App</h1><div class="input-section"><input type="text" id="todoInput" placeholder="Add a task..."/><button onclick="addTodo()">Add</button></div><ul id="todoList" class="todo-list"></ul><div class="stats"><span id="todoCount">0 remaining</span><button onclick="clearCompleted()">Clear Done</button></div></div></div></body></html>`,
+      css: `*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:2rem}.container{background:white;border-radius:15px;padding:2rem;max-width:500px;margin:0 auto}h1{text-align:center;color:#333;margin-bottom:2rem}.input-section{display:flex;gap:.5rem;margin-bottom:1.5rem}#todoInput{flex:1;padding:1rem;border:2px solid #e1e5e9;border-radius:10px;font-size:1rem;outline:none}.input-section button{padding:1rem 1.5rem;background:#667eea;color:white;border:none;border-radius:10px;cursor:pointer}.todo-item{display:flex;align-items:center;padding:1rem;border:1px solid #e1e5e9;border-radius:10px;margin-bottom:.5rem}.todo-checkbox{margin-right:1rem;width:20px;height:20px}.todo-text{flex:1}.delete-btn{background:#ef4444;color:white;border:none;padding:.5rem 1rem;border-radius:5px;cursor:pointer}.completed{opacity:.6;text-decoration:line-through}.stats{display:flex;justify-content:space-between;padding-top:1rem;border-top:1px solid #e1e5e9}.stats button{background:transparent;border:1px solid #e1e5e9;padding:.5rem 1rem;border-radius:5px;cursor:pointer}`,
+      javascript: `let todos=[{id:1,text:'Learn HTML & CSS',completed:true},{id:2,text:'Build a todo app',completed:false}];function addTodo(){const i=document.getElementById('todoInput');const t=i.value.trim();if(!t)return;todos.push({id:Date.now(),text:t,completed:false});i.value='';render()}function deleteTodo(id){todos=todos.filter(t=>t.id!==id);render()}function toggleTodo(id){const t=todos.find(t=>t.id===id);if(t)t.completed=!t.completed;render()}function clearCompleted(){todos=todos.filter(t=>!t.completed);render()}function render(){document.getElementById('todoList').innerHTML=todos.map(t=>\`<li class="todo-item \${t.completed?'completed':''}"><input type="checkbox" class="todo-checkbox" \${t.completed?'checked':''} onchange="toggleTodo(\${t.id})"/><span class="todo-text">\${t.text}</span><button class="delete-btn" onclick="deleteTodo(\${t.id})">Delete</button></li>\`).join('');document.getElementById('todoCount').textContent=\`\${todos.filter(t=>!t.completed).length} remaining\`}document.addEventListener('DOMContentLoaded',()=>{document.getElementById('todoInput').addEventListener('keypress',e=>{if(e.key==='Enter')addTodo()});render()})`,
     },
   },
   {
     id: "stopwatch",
     name: "Stopwatch",
-    description: "Simple stopwatch with start, stop and reset",
+    description: "Simple stopwatch",
     icon: <Timer className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stopwatch</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Stopwatch</h1>
-        <div class="display" id="display">00:00:00</div>
-        <div class="buttons">
-            <button onclick="startStop()" id="startBtn">Start</button>
-            <button onclick="reset()">Reset</button>
-        </div>
-    </div>
-</body>
-</html>`,
-      css: `body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    font-family: 'Segoe UI', sans-serif;
-}
-.container { text-align: center; color: white; }
-h1 { font-size: 2rem; margin-bottom: 1rem; letter-spacing: 4px; text-transform: uppercase; }
-.display { font-size: 5rem; font-weight: bold; margin: 2rem 0; color: #00d4ff; letter-spacing: 4px; }
-.buttons { display: flex; gap: 1rem; justify-content: center; }
-button { padding: 1rem 2.5rem; font-size: 1rem; border: none; border-radius: 50px; cursor: pointer; font-weight: 600; transition: all 0.3s; background: #00d4ff; color: #1a1a2e; }
-button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,212,255,0.3); }`,
-      javascript: `let timer = null;
-let seconds = 0;
-let running = false;
-function startStop() {
-    const btn = document.getElementById('startBtn');
-    if (running) { clearInterval(timer); btn.textContent = 'Start'; running = false; }
-    else { timer = setInterval(() => { seconds++; updateDisplay(); }, 1000); btn.textContent = 'Stop'; running = true; }
-}
-function reset() {
-    clearInterval(timer); seconds = 0; running = false;
-    document.getElementById('startBtn').textContent = 'Start';
-    updateDisplay();
-}
-function updateDisplay() {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    document.getElementById('display').textContent =
-        String(hrs).padStart(2,'0')+':'+String(mins).padStart(2,'0')+':'+String(secs).padStart(2,'0');
-}`,
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Stopwatch</title></head><body><div class="container"><h1>Stopwatch</h1><div class="display" id="display">00:00:00</div><div class="buttons"><button onclick="startStop()" id="startBtn">Start</button><button onclick="reset()">Reset</button></div></div></body></html>`,
+      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e);font-family:'Segoe UI',sans-serif}.container{text-align:center;color:white}h1{font-size:2rem;margin-bottom:1rem;letter-spacing:4px;text-transform:uppercase}.display{font-size:5rem;font-weight:bold;margin:2rem 0;color:#00d4ff;letter-spacing:4px}.buttons{display:flex;gap:1rem;justify-content:center}button{padding:1rem 2.5rem;font-size:1rem;border:none;border-radius:50px;cursor:pointer;font-weight:600;background:#00d4ff;color:#1a1a2e;transition:all 0.3s}button:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,212,255,0.3)}`,
+      javascript: `let timer=null,seconds=0,running=false;function startStop(){const b=document.getElementById('startBtn');if(running){clearInterval(timer);b.textContent='Start';running=false}else{timer=setInterval(()=>{seconds++;update()},1000);b.textContent='Stop';running=true}}function reset(){clearInterval(timer);seconds=0;running=false;document.getElementById('startBtn').textContent='Start';update()}function update(){const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;document.getElementById('display').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}`,
     },
   },
 ]
 
-type LayoutType = "split" | "preview" | "code"
-
 export default function CodeEditor() {
   const [code, setCode] = useState<CodeContent>(() => {
-    if (typeof window === 'undefined') return templates[0].content
+    if (typeof window === "undefined") return templates[0].content
     try {
       const urlParams = new URLSearchParams(window.location.search)
-      const sharedCode = urlParams.get('code')
+      const sharedCode = urlParams.get("code")
       if (sharedCode) return JSON.parse(safeBase64Decode(sharedCode)) as CodeContent
     } catch {
-      // invalid share URL — fall through
+      // ignore invalid share URL
     }
     try {
-      const saved = localStorage.getItem('webify_code')
+      const saved = localStorage.getItem("webify_code")
       if (saved) return JSON.parse(saved) as CodeContent
     } catch {
-      // corrupted storage — fall through
+      // ignore corrupted local storage
     }
     return templates[0].content
   })
 
-  const [layout, setLayout] = useState<LayoutType>("split")
   const [activeTab, setActiveTab] = useState<keyof CodeContent>("html")
-  const [isFullscreen, setIsFullscreen] = useState(false)
   const [theme, setTheme] = useState<"light" | "dark">("light")
-  const [paletteOpen, setPaletteOpen] = useState(false)
-  const [autoRun, setAutoRun] = useState(true)
+  const previewRef = useRef<HTMLIFrameElement>(null)
 
   const [splitRatio, setSplitRatio] = useState(50)
   const isDragging = useRef(false)
@@ -1717,7 +1280,6 @@ useEffect(() => {
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-
     if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
       setTheme("dark")
       document.documentElement.classList.add("dark")
@@ -1727,402 +1289,77 @@ useEffect(() => {
     }
   }, [])
 
-  const toggleTheme = () => {
-    if (theme === "light") {
-      setTheme("dark")
-      document.documentElement.classList.add("dark")
-      localStorage.setItem("theme", "dark")
-    } else {
-      setTheme("light")
-      document.documentElement.classList.remove("dark")
-      localStorage.setItem("theme", "light")
-    }
-  }
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem("webify_code", JSON.stringify(code))
+      } catch {
+        // ignore storage quota errors
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [code])
 
   useEffect(() => {
     if (!previewRef.current) return
-    if (!autoRun) return
-
+    const htmlValidation = validateHtmlSyntax(code.html)
     if (!htmlValidation.isValid) {
       previewRef.current.srcdoc = createPreviewErrorHtml(htmlValidation.message ?? "Invalid HTML syntax.")
       return
     }
 
-    const combinedCode = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Live Preview</title>
-        <style>${code.css}</style>
-      </head>
-      <body>
-        ${code.html}
-        <script>
-          (function() {
-            var _killTimer = setTimeout(function() {
-              document.body.innerHTML = '<div style="padding:20px;color:red;font-family:monospace;font-size:14px;">⚠️ Script timed out after 5 seconds — possible infinite loop.</div>';
-            }, 5000);
-            try {
-              ${code.javascript}
-            } catch(e) {
-              clearTimeout(_killTimer);
-              var el = document.createElement('div');
-              el.style.cssText = 'padding:20px;color:red;font-family:monospace;font-size:14px;';
-              el.textContent = '⚠️ JS Error: ' + e.message;
-              document.body.appendChild(el);
-              return;
-            }
-            clearTimeout(_killTimer);
-          })();
-        <\/script>
-      </body>
-      </html>
-    `
-        
-    
-    const blob = new Blob([combinedCode], { type: "text/html" })
-    const url = URL.createObjectURL(blob)
-    previewRef.current.src = url
+    const combinedCode = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${code.css}</style></head><body>${code.html}<script>(function(){try{${code.javascript}}catch(e){var el=document.createElement('div');el.style.cssText='padding:12px;color:#b91c1c;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el)}})()<\/script></body></html>`
+    previewRef.current.srcdoc = combinedCode
+  }, [code])
 
-    return () => URL.revokeObjectURL(url)
-  }, [code, htmlValidation, autoRun])
-
-  const runCodeManually = () => {
-    if (!previewRef.current) return
-
-    if (!htmlValidation.isValid) {
-      previewRef.current.srcdoc = createPreviewErrorHtml(
-        htmlValidation.message ?? "Invalid HTML syntax."
-      )
-      return
-    }
-
-    const combinedCode = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Live Preview</title>
-      <style>${code.css}</style>
-    </head>
-    <body>
-      ${code.html}
-      <script>
-        (function() {
-          var _killTimer = setTimeout(function() {
-            document.body.innerHTML = '<div style="padding:20px;color:red;font-family:monospace;font-size:14px;">⚠️ Script timed out after 5 seconds — possible infinite loop.</div>';
-          }, 5000);
-          try {
-            ${code.javascript}
-          } catch(e) {
-            clearTimeout(_killTimer);
-            var el = document.createElement('div');
-            el.style.cssText = 'padding:20px;color:red;font-family:monospace;font-size:14px;';
-            el.textContent = '⚠️ JS Error: ' + e.message;
-            document.body.appendChild(el);
-            return;
-          }
-          clearTimeout(_killTimer);
-        })();
-      <\/script>
-    </body>
-    </html>
-  `
-
-    const blob = new Blob([combinedCode], { type: "text/html" })
-    const url = URL.createObjectURL(blob)
-    previewRef.current.src = url
-  }
 
   const handleCodeChange = (language: keyof CodeContent, value: string) => {
     setCode((prev) => ({ ...prev, [language]: value }))
   }
 
-  // AFTER
-const loadTemplate = (template: Template) => {
-  // Save the current template's edits before switching away
-  if (currentTemplateId) {
-    setTemplateSnapshots(prev => ({ ...prev, [currentTemplateId]: code }))
+  const loadTemplate = (templateId: string) => {
+    const template = templates.find((t) => t.id === templateId)
+    if (!template) return
+    setCode(template.content)
+    toast.success(`${template.name} loaded`)
   }
-
-  // Restore the user's last edits for this template, or fall back to its default content
-  const savedSnapshot = templateSnapshots[template.id]
-  setCode(savedSnapshot ?? template.content)
-  setCurrentTemplateId(template.id)
-
-  toast("Template loaded", {
-    description: `${template.name} template has been loaded successfully.`,
-  })
-}
-
 
   const downloadCode = async () => {
-    const zip = new JSZip();
-
-    zip.file("index.html", `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Project</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-${code.html}
-    <script src="script.js"></script>
-</body>
-</html>`);
-
-    zip.file("style.css", code.css);
-    zip.file("script.js", code.javascript);
-
-    const blob = await zip.generateAsync({ type: "blob" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "webify-project.zip";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    toast("Download started", {
-      description: "Your project has been downloaded as webify-project.zip",
-    });
+    const zip = new JSZip()
+    zip.file("index.html", code.html)
+    zip.file("style.css", code.css)
+    zip.file("script.js", code.javascript)
+    const blob = await zip.generateAsync({ type: "blob" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "webify-project.zip"
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
   }
-
-  const importCode = () => {
-    const input = document.createElement("input")
-    input.type = "file"
-    input.accept = ".html"
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const content = e.target?.result as string
-          // Basic parsing - in a real app, you'd want more sophisticated parsing
-          const htmlMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
-          const cssMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/i)
-          const jsMatch = content.match(/<script[^>]*>([\s\S]*?)<\/script>/i)
-
-          setCode({
-            html: htmlMatch ? htmlMatch[1].trim() : "",
-            css: cssMatch ? cssMatch[1].trim() : "",
-            javascript: jsMatch ? jsMatch[1].trim() : "",
-          })
-
-          toast("File imported", {
-            description: "HTML file has been imported successfully.",
-          });
-
-        }
-        reader.readAsText(file)
-      }
-    }
-    input.click()
-  }
-
-  // Load shared code from URL on mount
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const sharedCode = urlParams.get("code")
-
-    if (sharedCode) {
-      try {
-        const decoded = JSON.parse(safeBase64Decode(sharedCode))
-        setCode(decoded)
-        toast("Shared code loaded", {
-          description: "The shared code has been loaded successfully.",
-        });
-
-      } catch (err) {
-        console.error("Clipboard copy failed:", err);
-        toast.error("Invalid share link", {
-          description: "Could not load shared code.",
-        });
-
-      }
-    }
-  }, [])
 
   const copyShareLink = async () => {
-    if (typeof window === "undefined") return
     try {
-      const url = `${window.location.origin}?code=${safeBase64Encode(
-        JSON.stringify({ html: code.html, css: code.css, javascript: code.javascript }),
-      )}`
-      await navigator.clipboard.writeText(url)
-      toast("Link copied", { description: "Shareable link copied to clipboard." })
-    } catch (err) {
-      console.error("Clipboard copy failed:", err)
-      toast.error("Copy failed", { description: "Could not copy the share link." })
+      const share = `${window.location.origin}?code=${safeBase64Encode(JSON.stringify(code))}`
+      await navigator.clipboard.writeText(share)
+      toast.success("Share link copied")
+    } catch {
+      toast.error("Could not copy share link")
     }
   }
 
-  const commands = useMemo<Command[]>(() => {
-    const layoutCmd = (
-      id: string,
-      label: string,
-      value: LayoutType,
-      icon: React.ReactNode,
-    ): Command => ({
-      id,
-      label,
-      group: "Layout",
-      icon,
-      keywords: "view layout panel",
-      description: layout === value ? "Active" : undefined,
-      perform: () => setLayout(value),
-    })
-
-    const tabCmd = (
-      id: string,
-      label: string,
-      value: keyof CodeContent,
-      icon: React.ReactNode,
-    ): Command => ({
-      id,
-      label,
-      group: "Editor",
-      icon,
-      keywords: "tab file language",
-      description: activeTab === value ? "Active" : undefined,
-      perform: () => {
-        setActiveTab(value)
-        if (layout === "preview") setLayout("split")
-      },
-    })
-
-    return [
-      layoutCmd("layout-code", "Code only", "code", <Code2 className="w-4 h-4" />),
-      layoutCmd("layout-split", "Split view", "split", <Layout className="w-4 h-4" />),
-      layoutCmd("layout-preview", "Preview only", "preview", <Play className="w-4 h-4" />),
-
-      tabCmd("tab-html", "Go to HTML", "html", <FileText className="w-4 h-4" />),
-      tabCmd("tab-css", "Go to CSS", "css", <Palette className="w-4 h-4" />),
-      tabCmd("tab-js", "Go to JavaScript", "javascript", <Zap className="w-4 h-4" />),
-
-      {
-        id: "editor-undo",
-        label: "Undo",
-        group: "Editor",
-        icon: <Undo2 className="w-4 h-4" />,
-        keywords: "ctrl z revert history undo",
-        perform: () => {
-          const ed = activeEditorRef.current
-          if (ed) {
-            ed.focus()
-            ed.trigger("palette", "undo", null)
-          } else if (layout === "preview") {
-            setLayout("split")
-          }
-        },
-      },
-      {
-        id: "editor-redo",
-        label: "Redo",
-        group: "Editor",
-        icon: <Redo2 className="w-4 h-4" />,
-        keywords: "ctrl y ctrl shift z history redo",
-        perform: () => {
-          const ed = activeEditorRef.current
-          if (ed) {
-            ed.focus()
-            ed.trigger("palette", "redo", null)
-          } else if (layout === "preview") {
-            setLayout("split")
-          }
-        },
-      },
-
-      {
-        id: "action-import",
-        label: "Import HTML file",
-        group: "Actions",
-        icon: <Upload className="w-4 h-4" />,
-        keywords: "open upload load",
-        perform: importCode,
-      },
-      {
-        id: "action-download",
-        label: "Download project",
-        group: "Actions",
-        icon: <Download className="w-4 h-4" />,
-        keywords: "export save html",
-        perform: downloadCode,
-      },
-      {
-        id: "action-share",
-        label: "Copy shareable link",
-        group: "Actions",
-        icon: <LinkIcon className="w-4 h-4" />,
-        keywords: "url clipboard share",
-        perform: copyShareLink,
-      },
-      {
-        id: "action-open-tab",
-        label: "Open preview in new tab",
-        group: "Actions",
-        icon: <Maximize2 className="w-4 h-4" />,
-        keywords: "window external browser",
-        perform: () => {
-          if (previewRef.current?.src) window.open(previewRef.current.src, "_blank")
-        },
-      },
-      {
-        id: "action-fullscreen",
-        label: isFullscreen ? "Exit fullscreen" : "Enter fullscreen",
-        group: "Actions",
-        icon: isFullscreen ? (
-          <Minimize2 className="w-4 h-4" />
-        ) : (
-          <Maximize2 className="w-4 h-4" />
-        ),
-        keywords: "expand maximize zoom",
-        perform: handleFullscreenToggle,
-      },
-      {
-        id: "action-theme",
-        label: theme === "light" ? "Switch to dark mode" : "Switch to light mode",
-        group: "Actions",
-        icon: theme === "light" ? (
-          <Moon className="w-4 h-4" />
-        ) : (
-          <Sun className="w-4 h-4" />
-        ),
-        keywords: "appearance dark light color",
-        perform: toggleTheme,
-      },
-
-      ...templates.map<Command>((t) => ({
-        id: `template-${t.id}`,
-        label: t.name,
-        description: t.description,
-        group: "Templates",
-        icon: t.icon,
-        keywords: `template starter ${t.name}`,
-        perform: () => loadTemplate(t),
-      })),
-    ]
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layout, activeTab, theme, isFullscreen, code])
-
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault()
-        e.stopPropagation()
-        setPaletteOpen((open) => !open)
-      }
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light"
+    setTheme(next)
+    if (next === "dark") {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
     }
-    window.addEventListener("keydown", onKeyDown, true)
-    return () => window.removeEventListener("keydown", onKeyDown, true)
-  }, [])
+    localStorage.setItem("theme", next)
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem("webify-font-size")
@@ -2407,6 +1644,6 @@ ${code.html}
 
 
       </div>
-    </>
+    </AppErrorBoundary>
   )
 }
