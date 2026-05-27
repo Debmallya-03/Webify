@@ -38,7 +38,7 @@ interface MonacoEditorProps {
   value: string
   onChange: (value: string) => void
   theme?: "light" | "dark"
-  /** Receives the editor instance on mount, and `null` on unmount. */
+  fontSize?: number
   onEditorReady?: (editor: monaco.editor.IStandaloneCodeEditor | null) => void
 }
 
@@ -47,6 +47,7 @@ export default function MonacoEditor({
   value,
   onChange,
   theme,
+  fontSize = 14,
   onEditorReady,
 }: MonacoEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
@@ -68,6 +69,7 @@ export default function MonacoEditor({
         },
       })
 
+
       monaco.editor.defineTheme("custom-light", {
         base: "vs",
         inherit: true,
@@ -85,7 +87,7 @@ export default function MonacoEditor({
         theme: theme === "dark" ? "custom-dark" : "custom-light",
         automaticLayout: true,
         minimap: { enabled: false },
-        fontSize: 14,
+        fontSize: fontSize,
         lineNumbers: "on",
         roundedSelection: false,
         scrollBeyondLastLine: false,
@@ -192,6 +194,12 @@ export default function MonacoEditor({
       })
     }
   }, [theme])
+
+  useEffect(() => {
+    if (monacoRef.current) {
+      monacoRef.current.updateOptions({ fontSize })
+    }
+  }, [fontSize])
 
   // Helper: compute and render status text
   const updateStatusBar = (text: string) => {
