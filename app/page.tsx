@@ -796,8 +796,8 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Interactive effects script removed */`,
     },
   },
-  {
-    id: "interactive-card",
+    {
+        id: "interactive-card-2",
     name: "Interactive Card",
     description: "Animated card component",
     icon: <Palette className="w-4 h-4" />,
@@ -1190,15 +1190,15 @@ export default function CodeEditor() {
   return (
     <AppErrorBoundary>
       <div className="h-[100dvh] flex flex-col bg-gray-50 dark:bg-gray-900">
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 flex items-center gap-2">
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 flex items-center gap-2 min-w-0">
           <Link href="/" className="flex items-center gap-1.5 mr-2">
             <Code2 className="w-5 h-5 text-blue-600" />
             <span className="font-bold text-gray-900 dark:text-white">Webify</span>
           </Link>
           <Select onValueChange={loadTemplate}>
-            <SelectTrigger className="w-48 h-8 text-sm">
-              <SelectValue placeholder="Choose template" />
-            </SelectTrigger>
+                    <SelectTrigger className="w-48 max-w-full h-8 text-sm">
+                            <SelectValue placeholder="Choose template" />
+                        </SelectTrigger>
             <SelectContent>
               {templates.map((template) => (
                 <SelectItem key={template.id} value={template.id}>{template.name}</SelectItem>
@@ -1212,9 +1212,9 @@ export default function CodeEditor() {
           </div>
         </header>
 
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 overflow-hidden">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 overflow-hidden min-w-0">
           <EditorErrorBoundary>
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as keyof CodeContent)} className="flex-1 flex flex-col overflow-hidden">
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as keyof CodeContent)} className="flex-1 flex flex-col overflow-hidden min-w-0">
               <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 py-2">
                 <TabsList>
                   <TabsTrigger value="html">HTML</TabsTrigger>
@@ -1237,12 +1237,12 @@ export default function CodeEditor() {
           </EditorErrorBoundary>
 
           <PreviewErrorBoundary>
-            <div className="flex flex-col border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-700 min-w-0">
               <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 py-2 flex items-center gap-2">
                 <Play className="w-4 h-4 text-green-600" />
                 <span className="text-sm font-medium text-gray-900 dark:text-white">Live Preview</span>
               </div>
-              <iframe ref={previewRef} className="flex-1 w-full border-0 bg-white" title="Live Preview" sandbox="allow-scripts allow-forms allow-popups allow-modals" />
+              <iframe ref={previewRef} className="flex-1 w-full border-0 bg-white min-h-0 min-w-0" title="Live Preview" sandbox="allow-scripts allow-forms allow-popups allow-modals" />
             </div>
           </PreviewErrorBoundary>
         </div>
