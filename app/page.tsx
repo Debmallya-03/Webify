@@ -1064,8 +1064,95 @@ document.head.appendChild(floatStyle);`,
     content: {
       html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Todo</title></head><body><div class="app"><div class="container"><h1>Todo App</h1><div class="input-section"><input type="text" id="todoInput" placeholder="Add a task..."/><button onclick="addTodo()">Add</button></div><ul id="todoList" class="todo-list"></ul><div class="stats"><span id="todoCount">0 remaining</span><button onclick="clearCompleted()">Clear Done</button></div></div></div></body></html>`,
       css: `*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:2rem}.container{background:white;border-radius:15px;padding:2rem;max-width:500px;margin:0 auto}h1{text-align:center;color:#333;margin-bottom:2rem}.input-section{display:flex;gap:.5rem;margin-bottom:1.5rem}#todoInput{flex:1;padding:1rem;border:2px solid #e1e5e9;border-radius:10px;font-size:1rem;outline:none}.input-section button{padding:1rem 1.5rem;background:#667eea;color:white;border:none;border-radius:10px;cursor:pointer}.todo-item{display:flex;align-items:center;padding:1rem;border:1px solid #e1e5e9;border-radius:10px;margin-bottom:.5rem}.todo-checkbox{margin-right:1rem;width:20px;height:20px}.todo-text{flex:1}.delete-btn{background:#ef4444;color:white;border:none;padding:.5rem 1rem;border-radius:5px;cursor:pointer}.completed{opacity:.6;text-decoration:line-through}.stats{display:flex;justify-content:space-between;padding-top:1rem;border-top:1px solid #e1e5e9}.stats button{background:transparent;border:1px solid #e1e5e9;padding:.5rem 1rem;border-radius:5px;cursor:pointer}`,
-      javascript: `let todos=[{id:1,text:'Learn HTML & CSS',completed:true},{id:2,text:'Build a todo app',completed:false}];function addTodo(){const i=document.getElementById('todoInput');const t=i.value.trim();if(!t)return;todos.push({id:Date.now(),text:t,completed:false});i.value='';render()}function deleteTodo(id){todos=todos.filter(t=>t.id!==id);render()}function toggleTodo(id){const t=todos.find(t=>t.id===id);if(t)t.completed=!t.completed;render()}function clearCompleted(){todos=todos.filter(t=>!t.completed);render()}function render(){document.getElementById('todoList').innerHTML=todos.map(t=>\`<li class="todo-item \${t.completed?'completed':''}"><input type="checkbox" class="todo-checkbox" \${t.completed?'checked':''} onchange="toggleTodo(\${t.id})"/><span class="todo-text">\${t.text}</span><button class="delete-btn" onclick="deleteTodo(\${t.id})">Delete</button></li>\`).join('');document.getElementById('todoCount').textContent=\`\${todos.filter(t=>!t.completed).length} remaining\`}document.addEventListener('DOMContentLoaded',()=>{document.getElementById('todoInput').addEventListener('keypress',e=>{if(e.key==='Enter')addTodo()});render()})`,
-    },
+javascript: `
+let todos = [
+  {
+    id: 1,
+    text: 'Learn HTML & CSS',
+    completed: true
+  },
+  {
+    id: 2,
+    text: 'Build a todo app',
+    completed: false
+  }
+];
+
+window.addTodo = function () {
+  const input = document.getElementById('todoInput');
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  todos.push({
+    id: Date.now(),
+    text: text,
+    completed: false
+  });
+
+  input.value = '';
+  render();
+};
+
+window.deleteTodo = function (id) {
+  todos = todos.filter(todo => todo.id !== id);
+  render();
+};
+
+window.toggleTodo = function (id) {
+  const todo = todos.find(todo => todo.id === id);
+
+  if (todo) {
+    todo.completed = !todo.completed;
+  }
+
+  render();
+};
+
+window.clearCompleted = function () {
+  todos = todos.filter(todo => !todo.completed);
+  render();
+};
+
+function render() {
+  document.getElementById('todoList').innerHTML = todos
+    .map(todo => \`
+      <li class="todo-item \${todo.completed ? 'completed' : ''}">
+        <input
+          type="checkbox"
+          class="todo-checkbox"
+          \${todo.completed ? 'checked' : ''}
+          onchange="toggleTodo(\${todo.id})"
+        />
+
+        <span class="todo-text">\${todo.text}</span>
+
+        <button
+          class="delete-btn"
+          onclick="deleteTodo(\${todo.id})"
+        >
+          Delete
+        </button>
+      </li>
+    \`)
+    .join('');
+
+  document.getElementById('todoCount').textContent =
+    \`\${todos.filter(todo => !todo.completed).length} remaining\`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('todoInput');
+
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      addTodo();
+    }
+  });
+
+  render();
+});
+`,    },
   },
   {
     id: "stopwatch",
