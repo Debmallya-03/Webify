@@ -1543,8 +1543,18 @@ export default function CodeEditor() {
   const [splitRatio, setSplitRatio] = useState(50)
   const isDragging = useRef(false)
   const [isResizing, setIsResizing] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  const [fontSize, setFontSize] = useState<number>(14)
 
   // use effect for handling full screen mode
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -1573,7 +1583,6 @@ export default function CodeEditor() {
 
 const containerRef = useRef<HTMLDivElement>(null)
 const previewRef = useRef<HTMLIFrameElement>(null)
-const activeEditorRef = useRef<any>(null)
 const handleDragStart = () => {
   isDragging.current = true;
   setIsResizing(true);
@@ -1916,6 +1925,17 @@ ${code.html}
     }
     input.click()
   }
+  const resetCode = () => {
+    if (window.confirm("Reset all editors to empty? This cannot be undone.")) {
+      setCode({ html: "", css: "", javascript: "" })
+      localStorage.removeItem("webify-code-html")
+      localStorage.removeItem("webify-code-css")
+      localStorage.removeItem("webify-code-javascript")
+      toast("Reset successful", {
+        description: "All editors have been cleared.",
+      })
+    }
+  }
 
   // Load shared code from URL on mount
   useEffect(() => {
@@ -2115,6 +2135,11 @@ ${code.html}
     return () => window.removeEventListener("keydown", onKeyDown, true)
   }, [])
 
+  useEffect(() => {
+    const saved = localStorage.getItem("webify-font-size")
+    if (saved) setFontSize(Number(saved))
+  }, [])
+
   return (
     <>
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} commands={commands} />
@@ -2185,7 +2210,13 @@ ${code.html}
               </div>
 
               <Separator orientation="vertical" className="h-6" />
-
+              
+              {/* Action Buttons */}
+              <Button variant="outline" size="sm" onClick={resetCode}>
+                <Undo2 className="w-4 h-4 mr-2" />
+                Reset
+              </Button>
+              
               {/* Action Buttons */}
               <Button variant="outline" size="sm" onClick={importCode}>
                 <Upload className="w-4 h-4 mr-2" />
@@ -2214,6 +2245,33 @@ ${code.html}
               <Button variant="outline" size="sm" onClick={handleFullscreenToggle}>
                 {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </Button>
+              
+              {/* Font Size Control */}
+              <div className="flex items-center gap-1 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1">
+                <button
+                  onClick={() => {
+                    const newSize = Math.max(10, fontSize - 1)
+                    setFontSize(newSize)
+                    localStorage.setItem("webify-font-size", String(newSize))
+                  }}
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-mono text-sm w-4 text-center"
+                  title="Decrease font size"
+                >
+                  −
+                </button>
+                <span className="text-xs text-gray-600 dark:text-gray-400 font-mono w-6 text-center">{fontSize}</span>
+                <button
+                  onClick={() => {
+                    const newSize = Math.min(24, fontSize + 1)
+                    setFontSize(newSize)
+                    localStorage.setItem("webify-font-size", String(newSize))
+                  }}
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-mono text-sm w-4 text-center"
+                  title="Increase font size"
+                >
+                  +
+                </button>
+              </div>
 
               <Button
                 variant="outline"
@@ -2227,164 +2285,7 @@ ${code.html}
           </div>
         </header>
 
-        {/* Main Content */}
-
-        <div
-          ref={containerRef}
-          className="flex-1 flex flex-col md:flex-row overflow-hidden relative"
-        >
-
-          {/* CODE EDITOR */}
-          {(layout === "code" || layout === "split") && (
-            <div
-
-
-              style={
-                layout === "split"
-                  ? {
-                    width: isMobile ? "100%" : `${splitRatio}%`,
-                    height: isMobile ? `${splitRatio}%` : "100%",
-                  }
-                  : { height: "100%", width: "100%" }
-              }
-              className="flex flex-col border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 shrink-0 transition-none"
-
-
-              style={{ width: layout === "split" ? `${splitRatio}%` : "100%" }}
-              className="flex flex-col border-r border-gray-200 dark:border-gray-700"
-
-            >
-              <Tabs
-                value={activeTab}
-                onValueChange={(value) => setActiveTab(value as keyof CodeContent)}
-                className="flex-1 flex flex-col"
-              >
-                {/* Tabs Header */}
-                <div className="bg-white dark:bg-gray-800 border-b px-4 overflow-x-auto scrollbar-hide">
-                  <TabsList className="flex w-full min-w-max">
-                    <TabsTrigger value="html" className="flex-1">HTML</TabsTrigger>
-                    <TabsTrigger value="css" className="flex-1">CSS</TabsTrigger>
-                    <TabsTrigger value="javascript" className="flex-1">JS</TabsTrigger>
-                  </TabsList>
-                </div>
-
-                {/* Tabs Content */}
-                <div className="flex-1 overflow-hidden">
-                  <TabsContent value="html" className="h-full m-0">
-                    <MonacoEditor
-                      language="html"
-                      value={code.html}
-                      onChange={(value) => handleCodeChange("html", value)}
-                      theme={theme}
-                      onEditorReady={(ed) => (activeEditorRef.current = ed)}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="css" className="h-full m-0">
-                    <MonacoEditor
-                      language="css"
-                      value={code.css}
-                      onChange={(value) => handleCodeChange("css", value)}
-                      theme={theme}
-                      onEditorReady={(ed) => (activeEditorRef.current = ed)}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="javascript" className="h-full m-0">
-                    <MonacoEditor
-                      language="javascript"
-                      value={code.javascript}
-                      onChange={(value) => handleCodeChange("javascript", value)}
-                      theme={theme}
-                      onEditorReady={(ed) => (activeEditorRef.current = ed)}
-                    />
-                  </TabsContent>
-                </div>
-              </Tabs>
-            </div>
-          )}
-
-          {/* RESIZE DIVIDER */}
-          {layout === "split" && (
-            <div
-              onMouseDown={handleDragStart}
-              onTouchStart={handleDragStart}
-              onDragStart={(e) => e.preventDefault()}
-              className="w-full h-3 md:w-2 md:h-full cursor-row-resize md:cursor-col-resize bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 active:bg-blue-600 transition shrink-0 z-10 flex items-center justify-center touch-none"
-            >
-              <div className="flex md:flex-col gap-1">
-                <div className="w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400"></div>
-                <div className="w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400"></div>
-                <div className="w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400"></div>
-              </div>
-            </div>
-          )}
-
-          {/* PREVIEW */}
-          {(layout === "preview" || layout === "split") && (
-            <div
-
-
-              style={layout === "split"
-                ? {
-                  width: isMobile ? "100%" : `${100 - splitRatio}%`,
-                  height: isMobile ? `${100 - splitRatio}%` : "100%",
-                }
-                : { height: "100%", width: "100%" }
-              }
-              className="flex flex-col shrink-0 relative transition-none"
-
-
-              style={{ width: layout === "split" ? `${100 - splitRatio}%` : "100%" }}
-              className="flex flex-col"
-
-            >
-              <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 flex items-center justify-between overflow-x-auto scrollbar-hide shrink-0">
-                <div className="flex items-center gap-2 min-w-max">
-                  <Play className="w-4 h-4 text-green-600 shrink-0" />
-                  <span className="font-medium text-gray-900 dark:text-white">
-                    Live Preview
-                  </span>
-
-                  <Badge variant="secondary" className="text-xs shrink-0">
-                    {autoRun ? "Auto-refresh" : "Manual"}
-                  </Badge>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setAutoRun(!autoRun)}
-                    className="shrink-0"
-                  >
-                    {autoRun ? "Pause" : "Resume"}
-                  </Button>
-
-                  {!autoRun && (
-                    <Button size="sm" onClick={runCodeManually} className="shrink-0">
-                      Run
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              <div className={`flex-1 bg-white relative ${isResizing ? "pointer-events-none select-none" : ""}`}>
-                <iframe
-                  ref={previewRef}
-                  className="absolute inset-0 w-full h-full border-0"
-                  title="Live Preview"
-                  sandbox="allow-scripts allow-forms allow-popups allow-modals"
-                />
-              </div>
-              {isResizing && (
-                <div className="absolute inset-0 z-20 cursor-row-resize md:cursor-col-resize"></div>
-              )}
-            </div>
-          )}
-
-        </div>
-
-
-
+        
         {/* Main Container - Code Editor + Preview */}
         <div
           ref={containerRef}
@@ -2426,6 +2327,7 @@ ${code.html}
             value={code.html}
             onChange={(value) => handleCodeChange("html", value)}
             theme={theme}
+            fontSize={fontSize}
             onEditorReady={(ed) => (activeEditorRef.current = ed)}
           />
         </TabsContent>
@@ -2436,6 +2338,7 @@ ${code.html}
             value={code.css}
             onChange={(value) => handleCodeChange("css", value)}
             theme={theme}
+            fontSize={fontSize}
             onEditorReady={(ed) => (activeEditorRef.current = ed)}
           />
         </TabsContent>
@@ -2446,6 +2349,7 @@ ${code.html}
             value={code.javascript}
             onChange={(value) => handleCodeChange("javascript", value)}
             theme={theme}
+            fontSize={fontSize}
             onEditorReady={(ed) => (activeEditorRef.current = ed)}
           />
         </TabsContent>
