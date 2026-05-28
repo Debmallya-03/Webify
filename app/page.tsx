@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 const safeBase64Encode = (str: string) =>
   btoa(unescape(encodeURIComponent(str)));
@@ -17,7 +17,7 @@ import { CommandPalette, type Command } from "@/components/ui/command-palette"
 import {
   Code2, Play, Download, Upload, Layout, Maximize2, Minimize2,
   FileText, Palette, Zap, Sun, Moon, Search, Link as LinkIcon,
-  Undo2, Redo2, Timer, MoreHorizontal, X,
+  Undo2, Redo2, Timer, MoreHorizontal, X, LogIn, UserPlus,
 } from "lucide-react"
 import { toast } from "sonner"
 import * as prettier from 'prettier'
@@ -154,6 +154,28 @@ const templates: Template[] = [
       javascript: `let timer=null,seconds=0,running=false;function startStop(){const b=document.getElementById('startBtn');if(running){clearInterval(timer);b.textContent='Start';running=false}else{timer=setInterval(()=>{seconds++;update()},1000);b.textContent='Stop';running=true}}function reset(){clearInterval(timer);seconds=0;running=false;document.getElementById('startBtn').textContent='Start';update()}function update(){const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;document.getElementById('display').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}`,
     },
   },
+  {
+    id: "login-form",
+    name: "Login Form",
+    description: "Animated glassmorphism login",
+    icon: <LogIn className="w-4 h-4" />,
+    content: {
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Login</title></head><body><div class="blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div><div class="container"><form class="login-form" id="loginForm"><div class="logo">✦</div><h2>Welcome Back</h2><p class="subtitle">Sign in to continue</p><div class="input-group"><input type="text" id="email" required><label for="email">Email address</label></div><div class="input-group"><input type="password" id="password" required><label for="password">Password</label><button type="button" class="toggle-pwd" id="togglePwd">👁</button></div><div class="actions"><label class="remember"><input type="checkbox"><span>Remember me</span></label><a href="#" class="forgot">Forgot password?</a></div><button type="submit" class="submit-btn">Sign In</button><div class="social-login"><button type="button" class="social-btn">Google</button><button type="button" class="social-btn">GitHub</button></div></form></div></body></html>`,
+      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#130a2e,#2d1b5a);font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;color:#fff}.blobs{position:absolute;inset:0;overflow:hidden;z-index:0}.blob{position:absolute;filter:blur(60px);border-radius:50%;opacity:0.6;animation:float 10s infinite ease-in-out alternate}.blob-1{width:300px;height:300px;background:#8b5cf6;top:-100px;left:-100px}.blob-2{width:400px;height:400px;background:#3b82f6;bottom:-150px;right:-100px;animation-delay:-5s}.blob-3{width:200px;height:200px;background:#ec4899;top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-2s}@keyframes float{0%{transform:translateY(0) scale(1)}100%{transform:translateY(30px) scale(1.1)}}.container{position:relative;z-index:1;width:100%;max-width:400px;padding:2rem}.login-form{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);padding:2.5rem;border-radius:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);animation:slideUp 0.6s cubic-bezier(0.16,1,0.3,1)}@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}.logo{font-size:3rem;text-align:center;color:#a855f7;animation:spin 10s linear infinite}h2{text-align:center;margin:1rem 0 0.5rem;font-size:1.75rem}.subtitle{text-align:center;color:#94a3b8;margin-bottom:2rem;font-size:0.9rem}.input-group{position:relative;margin-bottom:1.5rem}.input-group input{width:100%;padding:1rem;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:1rem;outline:none;transition:all 0.3s;box-sizing:border-box}.input-group input:focus,.input-group input:valid{border-color:#a855f7;background:rgba(0,0,0,0.3)}.input-group label{position:absolute;left:1rem;top:1rem;color:#94a3b8;transition:all 0.3s;pointer-events:none;font-size:1rem}.input-group input:focus~label,.input-group input:valid~label{top:-0.5rem;left:0.8rem;font-size:0.75rem;background:#2d1b5a;padding:0 0.4rem;color:#a855f7;border-radius:4px}.toggle-pwd{position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:1.2rem}.actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;font-size:0.875rem}.remember{display:flex;align-items:center;gap:0.5rem;color:#94a3b8;cursor:pointer}.forgot{color:#a855f7;text-decoration:none;transition:color 0.3s}.forgot:hover{color:#d8b4fe}.submit-btn{width:100%;padding:1rem;background:linear-gradient(135deg,#a855f7,#3b82f6);border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;position:relative;overflow:hidden}.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(168,85,247,0.3)}.social-login{margin-top:1.5rem;display:flex;gap:1rem}.social-btn{flex:1;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;cursor:pointer;transition:background 0.3s}.social-btn:hover{background:rgba(255,255,255,0.1)}`,
+      javascript: `const togglePwd=document.getElementById('togglePwd');const pwdInput=document.getElementById('password');togglePwd.addEventListener('click',()=>{const type=pwdInput.getAttribute('type')==='password'?'text':'password';pwdInput.setAttribute('type',type);togglePwd.textContent=type==='password'?'👁':'🙈'});document.getElementById('loginForm').addEventListener('submit',(e)=>{e.preventDefault();const btn=document.querySelector('.submit-btn');const originalText=btn.textContent;btn.innerHTML='<span style="display:inline-block;animation:spin 1s linear infinite">↻</span>';setTimeout(()=>{btn.textContent='Success!';btn.style.background='#22c55e';setTimeout(()=>{btn.textContent=originalText;btn.style.background='linear-gradient(135deg, #a855f7, #3b82f6)';e.target.reset()},2000)},1500)});`,
+    }
+  },
+  {
+    id: "signup-form",
+    name: "Sign Up Form",
+    description: "Interactive animated registration",
+    icon: <UserPlus className="w-4 h-4" />,
+    content: {
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Sign Up</title></head><body><div class="container"><form class="signup-form" id="signupForm"><div class="rocket">🚀</div><h2>Create Account</h2><p class="subtitle">Join our community today</p><div class="name-grid"><div class="input-group"><input type="text" id="fname" required><label for="fname">First Name</label></div><div class="input-group"><input type="text" id="lname" required><label for="lname">Last Name</label></div></div><div class="input-group"><input type="email" id="email" required><label for="email">Email Address</label><span class="validation-icon" id="emailIcon"></span></div><div class="input-group"><input type="password" id="password" required><label for="password">Password</label><div class="strength-meter"><div class="strength-bar" id="strengthBar"></div></div><p class="strength-text" id="strengthText"></p></div><div class="input-group"><input type="password" id="confirm" required><label for="confirm">Confirm Password</label></div><label class="terms"><input type="checkbox" required><span>I agree to the <a href="#">Terms</a> & <a href="#">Privacy</a></span></label><button type="submit" class="submit-btn">Create Account</button></form></div></body></html>`,
+      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a,#1e1b4b);font-family:'Segoe UI',system-ui,sans-serif;color:#fff}.container{width:100%;max-width:480px;padding:2rem;box-sizing:border-box}.signup-form{background:rgba(255,255,255,0.03);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);padding:2.5rem;border-radius:24px;box-shadow:0 30px 60px -15px rgba(0,0,0,0.6);animation:scaleIn 0.5s ease-out}@keyframes scaleIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}.rocket{font-size:3.5rem;text-align:center;animation:bounce 2s infinite ease-in-out}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}h2{text-align:center;margin:0.5rem 0;font-size:2rem;background:linear-gradient(to right,#2dd4bf,#a855f7);-webkit-background-clip:text;color:transparent}.subtitle{text-align:center;color:#94a3b8;margin-bottom:2rem}.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.input-group{position:relative;margin-bottom:1.5rem}.input-group input{width:100%;padding:1rem;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:1rem;outline:none;transition:all 0.3s;box-sizing:border-box}.input-group input:focus{border-color:#2dd4bf;box-shadow:0 0 0 4px rgba(45,212,191,0.1)}.input-group label{position:absolute;left:1rem;top:1rem;color:#94a3b8;transition:all 0.3s;pointer-events:none}.input-group input:focus~label,.input-group input:valid~label{top:-0.6rem;left:0.8rem;font-size:0.75rem;background:#1e1b4b;padding:0 0.4rem;color:#2dd4bf;border-radius:4px}.validation-icon{position:absolute;right:1rem;top:1rem}.strength-meter{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:0.5rem;overflow:hidden}.strength-bar{height:100%;width:0;transition:all 0.3s}.strength-text{font-size:0.75rem;margin-top:0.25rem;text-align:right}.terms{display:flex;align-items:center;gap:0.5rem;color:#94a3b8;font-size:0.875rem;margin-bottom:1.5rem}.terms a{color:#2dd4bf;text-decoration:none}.submit-btn{width:100%;padding:1rem;background:linear-gradient(135deg,#2dd4bf,#3b82f6);border:none;border-radius:12px;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all 0.3s}.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(45,212,191,0.3)}`,
+      javascript: `const pwd=document.getElementById('password');const bar=document.getElementById('strengthBar');const txt=document.getElementById('strengthText');const email=document.getElementById('email');const emailIcon=document.getElementById('emailIcon');pwd.addEventListener('input',(e)=>{const val=e.target.value;let strength=0;if(val.length>=8)strength++;if(val.match(/[A-Z]/))strength++;if(val.match(/[0-9]/))strength++;if(val.match(/[^A-Za-z0-9]/))strength++;let color,width,text;switch(strength){case 0:width='0';text='';break;case 1:width='25%';color='#ef4444';text='Weak';break;case 2:width='50%';color='#f97316';text='Fair';break;case 3:width='75%';color='#eab308';text='Good';break;case 4:width='100%';color='#22c55e';text='Strong 💪';break;}bar.style.width=width;bar.style.backgroundColor=color;txt.textContent=text;txt.style.color=color});email.addEventListener('blur',(e)=>{const val=e.target.value;if(val){const isValid=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(val);emailIcon.textContent=isValid?'✅':'❌'}else{emailIcon.textContent=''}});document.getElementById('signupForm').addEventListener('submit',(e)=>{e.preventDefault();if(document.getElementById('password').value!==document.getElementById('confirm').value){alert('Passwords do not match!');return}const btn=document.querySelector('.submit-btn');btn.textContent='Creating...';setTimeout(()=>{btn.textContent='Account Created!';btn.style.background='#22c55e'},1500)});`,
+    }
+  },
 ]
 
 type LayoutType = "split" | "preview" | "code"
@@ -187,6 +209,11 @@ export default function CodeEditor() {
   const [isResizing, setIsResizing] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [consoleErrors, setConsoleErrors] = useState<Array<{message: string; line?: number; col?: number}>>([])
+  const [runtimeError, setRuntimeError] = useState<{
+    message: string;
+    line: number | null;
+    column: number | null;
+  } | null>(null)
   const [consoleOpen, setConsoleOpen] = useState(false)
   const [moreSheetOpen, setMoreSheetOpen] = useState(false)
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null)
@@ -221,6 +248,11 @@ export default function CodeEditor() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "WEBIFY_ERROR") {
+        setRuntimeError({
+          message: event.data.message,
+          line: event.data.line ?? null,
+          column: event.data.column ?? event.data.col ?? null,
+        })
         setConsoleErrors((prev) => [...prev, {
           message: event.data.message,
           line: event.data.line,
@@ -339,13 +371,15 @@ export default function CodeEditor() {
 
   useEffect(() => {
     if (!previewRef.current || !autoRun) return
+    // clear runtime error on each recompile; timeout errors are caught by the iframe's own watchdog
+    setRuntimeError(null)
     if (!htmlValidation.isValid) {
       previewRef.current.srcdoc = createPreviewErrorHtml(htmlValidation.message ?? "Invalid HTML syntax.")
       return
     }
     const debounceTimer = setTimeout(() => {
       if (!previewRef.current) return
-      const combinedCode = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Live Preview</title><style>${code.css}</style></head><body>${code.html}<script>(function(){window.onerror=function(msg,src,line,col){window.parent.postMessage({type:'WEBIFY_ERROR',message:String(msg),line:line,col:col},'*');return true};var k=setTimeout(function(){window.parent.postMessage({type:'WEBIFY_ERROR',message:'Script timed out after 5 seconds'},'*');document.body.innerHTML='<div style="padding:20px;color:red;font-family:monospace;">Script timed out.</div>'},5000);try{${code.javascript}}catch(e){clearTimeout(k);window.parent.postMessage({type:'WEBIFY_ERROR',message:e.message},'*');var el=document.createElement('div');el.style.cssText='padding:20px;color:red;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el);return}clearTimeout(k)})()\<\/script></body></html>`
+      const combinedCode = `<!DOCTYPE html><html lang="en"><head><script>(function(){window.onerror=function(msg,src,line,col){window.parent.postMessage({type:'WEBIFY_ERROR',message:String(msg),line:line ?? null,column:col ?? null},'*');return true};window.addEventListener('unhandledrejection',function(event){var reason=event.reason instanceof Error?event.reason.message:String(event.reason);window.parent.postMessage({type:'WEBIFY_ERROR',message:reason,line:null,column:null},'*')})})()</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Live Preview</title><style>${code.css}</style></head><body>${code.html}<script>(function(){var k=setTimeout(function(){window.parent.postMessage({type:'WEBIFY_ERROR',message:'Script timed out after 5 seconds'},'*');document.body.innerHTML='<div style="padding:20px;color:red;font-family:monospace;">Script timed out.</div>'},5000);try{${code.javascript}}catch(e){clearTimeout(k);window.parent.postMessage({type:'WEBIFY_ERROR',message:e.message},'*');var el=document.createElement('div');el.style.cssText='padding:20px;color:red;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el);return}clearTimeout(k)})()\<\/script></body></html>`
       setConsoleErrors([])
       const blob = new Blob([combinedCode], { type: "text/html" })
       const url = URL.createObjectURL(blob)
@@ -357,11 +391,13 @@ export default function CodeEditor() {
 
   const runCodeManually = () => {
     if (!previewRef.current) return
+    // clear runtime error on each recompile; timeout errors are caught by the iframe's own watchdog
+    setRuntimeError(null)
     if (!htmlValidation.isValid) {
       previewRef.current.srcdoc = createPreviewErrorHtml(htmlValidation.message ?? "Invalid HTML syntax.")
       return
     }
-    const combinedCode = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Live Preview</title><style>${code.css}</style></head><body>${code.html}<script>(function(){window.onerror=function(msg,src,line,col){window.parent.postMessage({type:'WEBIFY_ERROR',message:String(msg),line:line,col:col},'*');return true};var k=setTimeout(function(){document.body.innerHTML='<div style="padding:20px;color:red;font-family:monospace;">Script timed out.</div>'},5000);try{${code.javascript}}catch(e){clearTimeout(k);var el=document.createElement('div');el.style.cssText='padding:20px;color:red;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el);return}clearTimeout(k)})()\<\/script></body></html>`
+    const combinedCode = `<!DOCTYPE html><html lang="en"><head><script>(function(){window.onerror=function(msg,src,line,col){window.parent.postMessage({type:'WEBIFY_ERROR',message:String(msg),line:line ?? null,column:col ?? null},'*');return true};window.addEventListener('unhandledrejection',function(event){var reason=event.reason instanceof Error?event.reason.message:String(event.reason);window.parent.postMessage({type:'WEBIFY_ERROR',message:reason,line:null,column:null},'*')})})()</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Live Preview</title><style>${code.css}</style></head><body>${code.html}<script>(function(){var k=setTimeout(function(){document.body.innerHTML='<div style="padding:20px;color:red;font-family:monospace;">Script timed out.</div>'},5000);try{${code.javascript}}catch(e){clearTimeout(k);var el=document.createElement('div');el.style.cssText='padding:20px;color:red;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el);return}clearTimeout(k)})()\<\/script></body></html>`
     setConsoleErrors([])
     const blob = new Blob([combinedCode], { type: "text/html" })
     const url = URL.createObjectURL(blob)
@@ -758,6 +794,36 @@ if (layout === "preview") setLayout("split")
                       title="Live Preview"
                       sandbox="allow-scripts allow-forms allow-popups allow-modals"
                     />
+                    {runtimeError && (
+                      <div style={{
+                        padding: '8px 12px',
+                        background: '#FFF5F5',
+                        borderTop: '1px solid #FEB2B2',
+                        color: '#C53030',
+                        fontFamily: 'monospace',
+                        fontSize: '13px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <span></span>
+                        <span>
+                          {runtimeError.message}
+                          {runtimeError.line ? ` (Line ${runtimeError.line}${runtimeError.column ? `:${runtimeError.column}` : ''})` : ''}
+                          {runtimeError.message === "Script error." && runtimeError.line === 0 && (
+                            <span style={{ fontSize: '11px', color: '#9B2C2C', marginTop: '2px', display: 'block' }}>
+                              Tip: External script error - check your CDN links or add crossorigin="anonymous"
+                            </span>
+                          )}
+                        </span>
+                        <button
+                          onClick={() => setRuntimeError(null)}
+                          style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#C53030', fontSize: '13px' }}
+                        >
+                          
+                        </button>
+                      </div>
+                    )}
                     {isResizing && <div className="absolute inset-0 z-20 cursor-row-resize md:cursor-col-resize" />}
                   </div>
                   {/* Console Panel */}
