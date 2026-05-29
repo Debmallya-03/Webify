@@ -1,10 +1,12 @@
 "use client"
 
 const safeBase64Encode = (str: string) =>
-  btoa(unescape(encodeURIComponent(str)));
+    btoa(
+        Array.from(new TextEncoder().encode(str), (byte) => String.fromCodePoint(byte)).join("")
+    )
 
 const safeBase64Decode = (str: string) =>
-  decodeURIComponent(escape(atob(str)));
+    new TextDecoder().decode(Uint8Array.from(atob(str), (char) => char.codePointAt(0) ?? 0))
 
 import type React from "react"
 import { useState, useEffect, useMemo, useRef, useCallback } from "react"
