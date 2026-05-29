@@ -226,8 +226,8 @@ export default function MonacoEditor({
   }
 
   return (
-    <div className="h-full w-full flex flex-col">
-      <div ref={editorRef} className="flex-1 min-h-0" />
+    <div className="h-full w-full flex flex-col min-w-0">
+      <div ref={editorRef} className="flex-1 min-h-0 min-w-0" />
       {/* VS Code-style status bar */}
       <div className="h-7 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between px-3 text-xs text-gray-600 dark:text-gray-400 select-none">
         <div className="flex gap-6">
