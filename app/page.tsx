@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 const safeBase64Encode = (str: string) =>
   btoa(unescape(encodeURIComponent(str)));
@@ -14,10 +14,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { CopyButton } from "@/components/ui/copy-button"
 import { CommandPalette, type Command } from "@/components/ui/command-palette"
+
 import {
-  Code2, Play, Download, Upload, Layout, Maximize2, Minimize2,
-  FileText, Palette, Zap, Sun, Moon, Search, Link as LinkIcon,
-  Undo2, Redo2, Timer, MoreHorizontal, X, LogIn, UserPlus,
+  Code2,
+  Play,
+  Download,
+  Layout,
+  FileText,
+  Palette,
+  Zap,
+  Sun,
+  Moon,
+  Link as LinkIcon,
+  Timer,
+  Camera,
+  LogIn,
+  UserPlus,
+  Undo2,
+  Redo2,
+  Upload,
+  Minimize2,
+  Maximize2,
+  MoreHorizontal,
+  X,
+  Search,
 } from "lucide-react"
 import { toast } from "sonner"
 import * as prettier from 'prettier'
@@ -351,6 +371,7 @@ export default function CodeEditor() {
     }
   }, [handleDragMove])
 
+
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove)
     window.addEventListener("mouseup", handleDragEnd)
@@ -430,6 +451,92 @@ export default function CodeEditor() {
     setCurrentTemplateId(template.id)
     toast("Template loaded", { description: `${template.name} template loaded.` })
   }
+  const exportImage = async () => {
+  const previewIframe = previewRef.current
+  if (!previewIframe) {
+    toast.error("No preview to capture")
+    return
+  }
+
+  const loadingToast = toast.loading("Capturing preview…")
+
+  try {
+    const { default: html2canvas } = await import("html2canvas")
+
+    const width = previewIframe.clientWidth || 800
+    const height = previewIframe.clientHeight || 600
+    const currentCode = codeRef.current
+
+      const combinedHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>
+  *{box-sizing:border-box}
+  html,body{margin:0!important;padding:0!important;width:${width}px!important;min-height:${height}px!important;}
+  ${currentCode.css}
+  </style></head><body>${currentCode.html}<script>(function(){try{${currentCode.javascript}}catch(e){}})()</script></body></html>`
+      // Off-screen but NOT visibility:hidden — hidden iframes don't paint,
+    // so html2canvas captures a blank canvas
+    const tempIframe = document.createElement("iframe")
+    tempIframe.style.cssText = `position:fixed;left:-9999px;top:0;width:${width}px;height:${height}px;border:none;`
+    document.body.appendChild(tempIframe)
+    tempIframe.srcdoc = combinedHtml
+
+    // Wait for iframe to load
+    await new Promise<void>((resolve) => {
+      tempIframe.addEventListener("load", () => resolve(), { once: true })
+      setTimeout(resolve, 4000)
+    })
+
+    // Extra time for JS inside the iframe to paint
+    await new Promise((r) => setTimeout(r, 500))
+
+    const tempDoc = tempIframe.contentDocument
+    if (!tempDoc?.body) {
+      document.body.removeChild(tempIframe)
+      toast.dismiss(loadingToast)
+      toast.error("Export failed", { description: "Preview not accessible." })
+      return
+    }
+
+      const canvas = await html2canvas(tempDoc.documentElement, {
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: "#ffffff",
+    width,
+    height,
+    logging: false,
+    scale: 1,
+  })
+
+    document.body.removeChild(tempIframe)
+    toast.dismiss(loadingToast)
+
+    // Wrap toBlob in a Promise — plain callback silently swallows failures
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, "image/png")
+    })
+
+    if (!blob) {
+      toast.error("Export failed", { description: "Canvas was empty or tainted." })
+      return
+    }
+
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "webify-preview.png"
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success("Image exported!", { description: "Saved as webify-preview.png" })
+
+  } catch (err) {
+    console.error("Export image error:", err)
+    toast.dismiss(loadingToast)
+    toast.error("Export failed", {
+      description: err instanceof Error ? err.message : "Unknown error",
+    })
+  }
+}
 
   const downloadCode = async () => {
     const zip = new JSZip()
@@ -611,6 +718,7 @@ if (layout === "preview") setLayout("split")
                   { label: "Share link", icon: <LinkIcon className="w-5 h-5" />, action: copyShareLink },
                   { label: "Open in tab", icon: <Maximize2 className="w-5 h-5" />, action: () => { if (previewRef.current?.src) window.open(previewRef.current.src, "_blank") } },
                   { label: isFullscreen ? "Exit fullscreen" : "Fullscreen", icon: isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />, action: () => { setIsFullscreen(v => !v); setMoreSheetOpen(false) } },
+                  { label: "Export Image", icon: <Camera className="w-5 h-5" />, action: exportImage },
                   { label: "Command palette", icon: <Search className="w-5 h-5" />, action: () => { setMoreSheetOpen(false); setPaletteOpen(true) } },
                   { label: theme === "light" ? "Dark mode" : "Light mode", icon: theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />, action: () => { toggleTheme(); setMoreSheetOpen(false) } },
                 ].map((item) => (
@@ -779,6 +887,16 @@ if (layout === "preview") setLayout("split")
                     {!autoRun && (
                       <Button size="sm" onClick={runCodeManually} className="shrink-0">Run</Button>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={exportImage}
+                      className="ml-auto shrink-0 hidden md:flex h-8 text-xs"
+                      title="Export preview as PNG"
+                    >
+                      <Camera className="w-3.5 h-3.5 mr-1.5" />
+                      Export Image
+                    </Button>
                   </div>
                   <div className={`flex-1 bg-white dark:bg-gray-900 relative ${isResizing ? "pointer-events-none" : ""}`}>
                     <iframe
