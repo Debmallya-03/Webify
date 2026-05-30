@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#9333ea"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c026d3"/>
+    </linearGradient>
+  </defs>
+
+  <!-- < left bracket -->
+  <path d="M58,20 L8,100 L58,180"
+        fill="none" stroke="url(#g1)" stroke-width="22"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- > right bracket -->
+  <path d="M142,20 L192,100 L142,180"
+        fill="none" stroke="url(#g1)" stroke-width="22"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- / slash -->
+  <line x1="126" y1="10" x2="74" y2="190"
+        stroke="url(#g2)" stroke-width="15"
+        stroke-linecap="round"/>
+</svg>
