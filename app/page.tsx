@@ -205,6 +205,9 @@ export default function CodeEditor() {
   const [theme, setTheme] = useState<"light" | "dark">("light")
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [autoRun, setAutoRun] = useState(true)
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
+  const [editorWidth, setEditorWidth] = useState(50)
+  const isDragging = useRef(false)
   const [splitRatio, setSplitRatio] = useState(50)
   const [isResizing, setIsResizing] = useState(false)
 
