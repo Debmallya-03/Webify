@@ -56,8 +56,8 @@ interface HtmlValidationResult {
 }
 
 const voidHtmlTags = new Set([
-  "area","base","br","col","embed","hr","img","input","link","meta",
-  "param","source","track","wbr",
+  "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
+  "param", "source", "track", "wbr",
 ])
 
 function createPreviewErrorHtml(message: string) {
@@ -116,8 +116,75 @@ const templates: Template[] = [
     description: "Modern landing page template",
     icon: <Layout className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Landing Page</title>\n</head>\n<body>\n    <header class="header"><nav class="nav"><div class="logo">Brand</div></nav></header>\n    <main class="hero"><div class="hero-content"><h1>Welcome to the Future</h1><p>Build amazing things</p><button onclick="alert('Hello!')">Get Started</button></div></main>\n</body>\n</html>`,
-      css: `body{margin:0;font-family:'Segoe UI',sans-serif}.header{background:#130a2e;padding:1rem 2rem;position:fixed;width:100%;top:0;z-index:1000}.nav{display:flex;justify-content:space-between;align-items:center}.logo{color:white;font-size:1.5rem;font-weight:bold}.hero{height:100vh;background:#130a2e;display:flex;align-items:center;justify-content:center;text-align:center;color:white}.hero-content h1{font-size:4rem;margin-bottom:1rem}.hero-content p{color:#c5bedb;margin-bottom:2rem}.hero-content button{padding:1rem 2.5rem;border:none;border-radius:50px;cursor:pointer;font-weight:700;font-size:1.1rem}`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">Brand</div>
+        </nav>
+    </header>
+    <main class="hero">
+        <div class="hero-content">
+            <h1>Welcome to the Future</h1>
+            <p>Build amazing things</p>
+            <button onclick="alert('Hello!')">Get Started</button>
+        </div>
+    </main>
+</body>
+</html>`,
+      css: `body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+}
+.header {
+    background: #130a2e;
+    padding: 1rem 2rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.hero {
+    height: 100vh;
+    background: #130a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+.hero-content h1 {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+.hero-content p {
+    color: #c5bedb;
+    margin-bottom: 2rem;
+}
+.hero-content button {
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+}`,
       javascript: `console.log('Landing page loaded!')`,
     },
   },
@@ -127,9 +194,109 @@ const templates: Template[] = [
     description: "Animated card component",
     icon: <Palette className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Card</title></head><body><div class="container"><div class="card" id="card"><div class="card-header"><h2>Interactive Card</h2><span class="status">Active</span></div><div class="card-content"><p>Hover over me!</p><div class="stats"><div class="stat"><span class="stat-number">42</span><span class="stat-label">Projects</span></div><div class="stat"><span class="stat-number">1.2k</span><span class="stat-label">Users</span></div></div></div><div class="card-footer"><button onclick="handleAction()">Take Action</button></div></div></div></body></html>`,
-      css: `body{margin:0;min-height:100vh;background:linear-gradient(135deg,#1e3c72,#2a5298);font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center}.card{width:350px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:20px;padding:2rem;color:white;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s ease;cursor:pointer}.card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(0,0,0,0.3)}.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}.status{background:#4ade80;padding:.25rem .75rem;border-radius:20px;font-size:.8rem}.stats{display:flex;gap:2rem;margin-bottom:1.5rem}.stat-number{display:block;font-size:2rem;font-weight:bold;color:#4ade80}.card-footer button{width:100%;padding:.75rem;background:#4ade80;color:#1f2937;border:none;border-radius:10px;cursor:pointer;font-weight:600}`,
-      javascript: `function handleAction(){const card=document.getElementById('card');card.style.animation='pulse 0.6s';setTimeout(()=>{alert('Action!');card.style.animation=''},600)}const s=document.createElement('style');s.textContent='@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}';document.head.appendChild(s)`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card</title>
+</head>
+<body>
+    <div class="container">
+        <div class="card" id="card">
+            <div class="card-header">
+                <h2>Interactive Card</h2>
+                <span class="status">Active</span>
+            </div>
+            <div class="card-content">
+                <p>Hover over me!</p>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-number">42</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1.2k</span>
+                        <span class="stat-label">Users</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button onclick="handleAction()">Take Action</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`,
+      css: `body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card {
+    width: 350px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.status {
+    background: #4ade80;
+    padding: .25rem .75rem;
+    border-radius: 20px;
+    font-size: .8rem;
+}
+.stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4ade80;
+}
+.card-footer button {
+    width: 100%;
+    padding: .75rem;
+    background: #4ade80;
+    color: #1f2937;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}`,
+      javascript: `function handleAction() {
+    const card = document.getElementById('card');
+    card.style.animation = 'pulse 0.6s';
+    setTimeout(() => {
+        alert('Action!');
+        card.style.animation = '';
+    }, 600);
+}
+
+const s = document.createElement('style');
+s.textContent = '@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}';
+document.head.appendChild(s);`,
     },
   },
   {
@@ -138,9 +305,162 @@ const templates: Template[] = [
     description: "Interactive todo application",
     icon: <Zap className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Todo</title></head><body><div class="app"><div class="container"><h1>Todo App</h1><div class="input-section"><input type="text" id="todoInput" placeholder="Add a task..."/><button onclick="addTodo()">Add</button></div><ul id="todoList" class="todo-list"></ul><div class="stats"><span id="todoCount">0 remaining</span><button onclick="clearCompleted()">Clear Done</button></div></div></div></body></html>`,
-      css: `*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:2rem}.container{background:white;border-radius:15px;padding:2rem;max-width:500px;margin:0 auto}h1{text-align:center;color:#333;margin-bottom:2rem}.input-section{display:flex;gap:.5rem;margin-bottom:1.5rem}#todoInput{flex:1;padding:1rem;border:2px solid #e1e5e9;border-radius:10px;font-size:1rem;outline:none}.input-section button{padding:1rem 1.5rem;background:#667eea;color:white;border:none;border-radius:10px;cursor:pointer}.todo-item{display:flex;align-items:center;padding:1rem;border:1px solid #e1e5e9;border-radius:10px;margin-bottom:.5rem}.todo-checkbox{margin-right:1rem;width:20px;height:20px}.todo-text{flex:1}.delete-btn{background:#ef4444;color:white;border:none;padding:.5rem 1rem;border-radius:5px;cursor:pointer}.completed{opacity:.6;text-decoration:line-through}.stats{display:flex;justify-content:space-between;padding-top:1rem;border-top:1px solid #e1e5e9}.stats button{background:transparent;border:1px solid #e1e5e9;padding:.5rem 1rem;border-radius:5px;cursor:pointer}`,
-      javascript: `let todos=[{id:1,text:'Learn HTML & CSS',completed:true},{id:2,text:'Build a todo app',completed:false}];function addTodo(){const i=document.getElementById('todoInput');const t=i.value.trim();if(!t)return;todos.push({id:Date.now(),text:t,completed:false});i.value='';render()}function deleteTodo(id){todos=todos.filter(t=>t.id!==id);render()}function toggleTodo(id){const t=todos.find(t=>t.id===id);if(t)t.completed=!t.completed;render()}function clearCompleted(){todos=todos.filter(t=>!t.completed);render()}function render(){document.getElementById('todoList').innerHTML=todos.map(t=>\`<li class="todo-item \${t.completed?'completed':''}"><input type="checkbox" class="todo-checkbox" \${t.completed?'checked':''} onchange="toggleTodo(\${t.id})"/><span class="todo-text">\${t.text}</span><button class="delete-btn" onclick="deleteTodo(\${t.id})">Delete</button></li>\`).join('');document.getElementById('todoCount').textContent=\`\${todos.filter(t=>!t.completed).length} remaining\`}document.addEventListener('DOMContentLoaded',()=>{document.getElementById('todoInput').addEventListener('keypress',e=>{if(e.key==='Enter')addTodo()});render()})`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo</title>
+</head>
+<body>
+    <div class="app">
+        <div class="container">
+            <h1>Todo App</h1>
+            <div class="input-section">
+                <input type="text" id="todoInput" placeholder="Add a task..."/>
+                <button onclick="addTodo()">Add</button>
+            </div>
+            <ul id="todoList" class="todo-list"></ul>
+            <div class="stats">
+                <span id="todoCount">0 remaining</span>
+                <button onclick="clearCompleted()">Clear Done</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`,
+      css: `* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    padding: 2rem;
+}
+.container {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 2rem;
+}
+.input-section {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1.5rem;
+}
+#todoInput {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+}
+.input-section button {
+    padding: 1rem 1.5rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.todo-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e1e5e9;
+    border-radius: 10px;
+    margin-bottom: .5rem;
+}
+.todo-checkbox {
+    margin-right: 1rem;
+    width: 20px;
+    height: 20px;
+}
+.todo-text {
+    flex: 1;
+}
+.delete-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: .5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.completed {
+    opacity: .6;
+    text-decoration: line-through;
+}
+.stats {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid #e1e5e9;
+}
+.stats button {
+    background: transparent;
+    border: 1px solid #e1e5e9;
+    padding: .5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+}`,
+      javascript: `let todos = [
+  { id: 1, text: 'Learn HTML & CSS', completed: true },
+  { id: 2, text: 'Build a todo app', completed: false }
+];
+
+function addTodo() {
+  const i = document.getElementById('todoInput');
+  const t = i.value.trim();
+  if (!t) return;
+  todos.push({ id: Date.now(), text: t, completed: false });
+  i.value = '';
+  render();
+}
+
+function deleteTodo(id) {
+  todos = todos.filter(t => t.id !== id);
+  render();
+}
+
+function toggleTodo(id) {
+  const t = todos.find(t => t.id === id);
+  if (t) t.completed = !t.completed;
+  render();
+}
+
+function clearCompleted() {
+  todos = todos.filter(t => !t.completed);
+  render();
+}
+
+function render() {
+  document.getElementById('todoList').innerHTML = todos.map(t => \`
+    <li class="todo-item \${t.completed ? 'completed' : ''}">
+      <input type="checkbox" class="todo-checkbox" \${t.completed ? 'checked' : ''} onchange="toggleTodo(\${t.id})"/>
+      <span class="todo-text">\${t.text}</span>
+      <button class="delete-btn" onclick="deleteTodo(\${t.id})">Delete</button>
+    </li>
+  \`).join('');
+  document.getElementById('todoCount').textContent = \`\${todos.filter(t => !t.completed).length} remaining\`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('todoInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') addTodo();
+  });
+  render();
+});`,
     },
   },
   {
@@ -149,9 +469,104 @@ const templates: Template[] = [
     description: "Simple stopwatch",
     icon: <Timer className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Stopwatch</title></head><body><div class="container"><h1>Stopwatch</h1><div class="display" id="display">00:00:00</div><div class="buttons"><button onclick="startStop()" id="startBtn">Start</button><button onclick="reset()">Reset</button></div></div></body></html>`,
-      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e);font-family:'Segoe UI',sans-serif}.container{text-align:center;color:white}h1{font-size:2rem;margin-bottom:1rem;letter-spacing:4px;text-transform:uppercase}.display{font-size:5rem;font-weight:bold;margin:2rem 0;color:#00d4ff;letter-spacing:4px}.buttons{display:flex;gap:1rem;justify-content:center}button{padding:1rem 2.5rem;font-size:1rem;border:none;border-radius:50px;cursor:pointer;font-weight:600;background:#00d4ff;color:#1a1a2e;transition:all 0.3s}button:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,212,255,0.3)}`,
-      javascript: `let timer=null,seconds=0,running=false;function startStop(){const b=document.getElementById('startBtn');if(running){clearInterval(timer);b.textContent='Start';running=false}else{timer=setInterval(()=>{seconds++;update()},1000);b.textContent='Stop';running=true}}function reset(){clearInterval(timer);seconds=0;running=false;document.getElementById('startBtn').textContent='Start';update()}function update(){const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;document.getElementById('display').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Stopwatch</h1>
+        <div class="display" id="display">00:00:00</div>
+        <div class="buttons">
+            <button onclick="startStop()" id="startBtn">Start</button>
+            <button onclick="reset()">Reset</button>
+        </div>
+    </div>
+</body>
+</html>`,
+      css: `body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    font-family: 'Segoe UI', sans-serif;
+}
+.container {
+    text-align: center;
+    color: white;
+}
+h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+.display {
+    font-size: 5rem;
+    font-weight: bold;
+    margin: 2rem 0;
+    color: #00d4ff;
+    letter-spacing: 4px;
+}
+.buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+button {
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    background: #00d4ff;
+    color: #1a1a2e;
+    transition: all 0.3s;
+}
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+}`,
+      javascript: `let timer = null;
+let seconds = 0;
+let running = false;
+
+function startStop() {
+  const b = document.getElementById('startBtn');
+  if (running) {
+    clearInterval(timer);
+    b.textContent = 'Start';
+    running = false;
+  } else {
+    timer = setInterval(() => {
+      seconds++;
+      update();
+    }, 1000);
+    b.textContent = 'Stop';
+    running = true;
+  }
+}
+
+function reset() {
+  clearInterval(timer);
+  seconds = 0;
+  running = false;
+  document.getElementById('startBtn').textContent = 'Start';
+  update();
+}
+
+function update() {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  document.getElementById('display').textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}`,
     },
   },
   {
@@ -160,9 +575,272 @@ const templates: Template[] = [
     description: "Animated glassmorphism login",
     icon: <LogIn className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Login</title></head><body><div class="blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div><div class="container"><form class="login-form" id="loginForm"><div class="logo">✦</div><h2>Welcome Back</h2><p class="subtitle">Sign in to continue</p><div class="input-group"><input type="text" id="email" required><label for="email">Email address</label></div><div class="input-group"><input type="password" id="password" required><label for="password">Password</label><button type="button" class="toggle-pwd" id="togglePwd">👁</button></div><div class="actions"><label class="remember"><input type="checkbox"><span>Remember me</span></label><a href="#" class="forgot">Forgot password?</a></div><button type="submit" class="submit-btn">Sign In</button><div class="social-login"><button type="button" class="social-btn">Google</button><button type="button" class="social-btn">GitHub</button></div></form></div></body></html>`,
-      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#130a2e,#2d1b5a);font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;color:#fff}.blobs{position:absolute;inset:0;overflow:hidden;z-index:0}.blob{position:absolute;filter:blur(60px);border-radius:50%;opacity:0.6;animation:float 10s infinite ease-in-out alternate}.blob-1{width:300px;height:300px;background:#8b5cf6;top:-100px;left:-100px}.blob-2{width:400px;height:400px;background:#3b82f6;bottom:-150px;right:-100px;animation-delay:-5s}.blob-3{width:200px;height:200px;background:#ec4899;top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-2s}@keyframes float{0%{transform:translateY(0) scale(1)}100%{transform:translateY(30px) scale(1.1)}}.container{position:relative;z-index:1;width:100%;max-width:400px;padding:2rem}.login-form{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);padding:2.5rem;border-radius:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);animation:slideUp 0.6s cubic-bezier(0.16,1,0.3,1)}@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}.logo{font-size:3rem;text-align:center;color:#a855f7;animation:spin 10s linear infinite}h2{text-align:center;margin:1rem 0 0.5rem;font-size:1.75rem}.subtitle{text-align:center;color:#94a3b8;margin-bottom:2rem;font-size:0.9rem}.input-group{position:relative;margin-bottom:1.5rem}.input-group input{width:100%;padding:1rem;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:1rem;outline:none;transition:all 0.3s;box-sizing:border-box}.input-group input:focus,.input-group input:valid{border-color:#a855f7;background:rgba(0,0,0,0.3)}.input-group label{position:absolute;left:1rem;top:1rem;color:#94a3b8;transition:all 0.3s;pointer-events:none;font-size:1rem}.input-group input:focus~label,.input-group input:valid~label{top:-0.5rem;left:0.8rem;font-size:0.75rem;background:#2d1b5a;padding:0 0.4rem;color:#a855f7;border-radius:4px}.toggle-pwd{position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:1.2rem}.actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;font-size:0.875rem}.remember{display:flex;align-items:center;gap:0.5rem;color:#94a3b8;cursor:pointer}.forgot{color:#a855f7;text-decoration:none;transition:color 0.3s}.forgot:hover{color:#d8b4fe}.submit-btn{width:100%;padding:1rem;background:linear-gradient(135deg,#a855f7,#3b82f6);border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;position:relative;overflow:hidden}.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(168,85,247,0.3)}.social-login{margin-top:1.5rem;display:flex;gap:1rem}.social-btn{flex:1;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;cursor:pointer;transition:background 0.3s}.social-btn:hover{background:rgba(255,255,255,0.1)}`,
-      javascript: `const togglePwd=document.getElementById('togglePwd');const pwdInput=document.getElementById('password');togglePwd.addEventListener('click',()=>{const type=pwdInput.getAttribute('type')==='password'?'text':'password';pwdInput.setAttribute('type',type);togglePwd.textContent=type==='password'?'👁':'🙈'});document.getElementById('loginForm').addEventListener('submit',(e)=>{e.preventDefault();const btn=document.querySelector('.submit-btn');const originalText=btn.textContent;btn.innerHTML='<span style="display:inline-block;animation:spin 1s linear infinite">↻</span>';setTimeout(()=>{btn.textContent='Success!';btn.style.background='#22c55e';setTimeout(()=>{btn.textContent=originalText;btn.style.background='linear-gradient(135deg, #a855f7, #3b82f6)';e.target.reset()},2000)},1500)});`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <div class="blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    <div class="container">
+        <form class="login-form" id="loginForm">
+            <div class="logo">✦</div>
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Sign in to continue</p>
+            <div class="input-group">
+                <input type="text" id="email" required>
+                <label for="email">Email address</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" required>
+                <label for="password">Password</label>
+                <button type="button" class="toggle-pwd" id="togglePwd">👁</button>
+            </div>
+            <div class="actions">
+                <label class="remember">
+                    <input type="checkbox">
+                    <span>Remember me</span>
+                </label>
+                <a href="#" class="forgot">Forgot password?</a>
+            </div>
+            <button type="submit" class="submit-btn">Sign In</button>
+            <div class="social-login">
+                <button type="button" class="social-btn">Google</button>
+                <button type="button" class="social-btn">GitHub</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>`,
+      css: `body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #130a2e, #2d1b5a);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    overflow: hidden;
+    color: #fff;
+}
+.blobs {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+}
+.blob {
+    position: absolute;
+    filter: blur(60px);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: float 10s infinite ease-in-out alternate;
+}
+.blob-1 {
+    width: 300px;
+    height: 300px;
+    background: #8b5cf6;
+    top: -100px;
+    left: -100px;
+}
+.blob-2 {
+    width: 400px;
+    height: 400px;
+    background: #3b82f6;
+    bottom: -150px;
+    right: -100px;
+    animation-delay: -5s;
+}
+.blob-3 {
+    width: 200px;
+    height: 200px;
+    background: #ec4899;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: -2s;
+}
+@keyframes float {
+    0% { transform: translateY(0) scale(1) }
+    100% { transform: translateY(30px) scale(1.1) }
+}
+.container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+}
+.login-form {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2.5rem;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px) }
+    to { opacity: 1; transform: translateY(0) }
+}
+.logo {
+    font-size: 3rem;
+    text-align: center;
+    color: #a855f7;
+    animation: spin 10s linear infinite;
+}
+h2 {
+    text-align: center;
+    margin: 1rem 0 0.5rem;
+    font-size: 1.75rem;
+}
+.subtitle {
+    text-align: center;
+    color: #94a3b8;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+}
+.input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+.input-group input {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+.input-group input:focus,
+.input-group input:valid {
+    border-color: #a855f7;
+    background: rgba(0, 0, 0, 0.3);
+}
+.input-group label {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    color: #94a3b8;
+    transition: all 0.3s;
+    pointer-events: none;
+    font-size: 1rem;
+}
+.input-group input:focus~label,
+.input-group input:valid~label {
+    top: -0.5rem;
+    left: 0.8rem;
+    font-size: 0.75rem;
+    background: #2d1b5a;
+    padding: 0 0.4rem;
+    color: #a855f7;
+    border-radius: 4px;
+}
+.toggle-pwd {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+}
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #94a3b8;
+    cursor: pointer;
+}
+.forgot {
+    color: #a855f7;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.forgot:hover {
+    color: #d8b4fe;
+}
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #a855f7, #3b82f6);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(168,85,247,0.3);
+}
+.social-login {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+}
+.social-btn {
+    flex: 1;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.social-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}`,
+      javascript: `const togglePwd = document.getElementById('togglePwd');
+const pwdInput = document.getElementById('password');
+
+togglePwd.addEventListener('click', () => {
+  const type = pwdInput.getAttribute('type') === 'password' ? 'text' : 'password';
+  pwdInput.setAttribute('type', type);
+  togglePwd.textContent = type === 'password' ? '👁' : '🙈';
+});
+
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const btn = document.querySelector('.submit-btn');
+  const originalText = btn.textContent;
+  btn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">↻</span>';
+  setTimeout(() => {
+    btn.textContent = 'Success!';
+    btn.style.background = '#22c55e';
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.style.background = 'linear-gradient(135deg, #a855f7, #3b82f6)';
+      e.target.reset();
+    }, 2000);
+  }, 1500);
+});`,
     }
   },
   {
@@ -171,9 +849,268 @@ const templates: Template[] = [
     description: "Interactive animated registration",
     icon: <UserPlus className="w-4 h-4" />,
     content: {
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Sign Up</title></head><body><div class="container"><form class="signup-form" id="signupForm"><div class="rocket">🚀</div><h2>Create Account</h2><p class="subtitle">Join our community today</p><div class="name-grid"><div class="input-group"><input type="text" id="fname" required><label for="fname">First Name</label></div><div class="input-group"><input type="text" id="lname" required><label for="lname">Last Name</label></div></div><div class="input-group"><input type="email" id="email" required><label for="email">Email Address</label><span class="validation-icon" id="emailIcon"></span></div><div class="input-group"><input type="password" id="password" required><label for="password">Password</label><div class="strength-meter"><div class="strength-bar" id="strengthBar"></div></div><p class="strength-text" id="strengthText"></p></div><div class="input-group"><input type="password" id="confirm" required><label for="confirm">Confirm Password</label></div><label class="terms"><input type="checkbox" required><span>I agree to the <a href="#">Terms</a> & <a href="#">Privacy</a></span></label><button type="submit" class="submit-btn">Create Account</button></form></div></body></html>`,
-      css: `body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a,#1e1b4b);font-family:'Segoe UI',system-ui,sans-serif;color:#fff}.container{width:100%;max-width:480px;padding:2rem;box-sizing:border-box}.signup-form{background:rgba(255,255,255,0.03);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);padding:2.5rem;border-radius:24px;box-shadow:0 30px 60px -15px rgba(0,0,0,0.6);animation:scaleIn 0.5s ease-out}@keyframes scaleIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}.rocket{font-size:3.5rem;text-align:center;animation:bounce 2s infinite ease-in-out}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}h2{text-align:center;margin:0.5rem 0;font-size:2rem;background:linear-gradient(to right,#2dd4bf,#a855f7);-webkit-background-clip:text;color:transparent}.subtitle{text-align:center;color:#94a3b8;margin-bottom:2rem}.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.input-group{position:relative;margin-bottom:1.5rem}.input-group input{width:100%;padding:1rem;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:1rem;outline:none;transition:all 0.3s;box-sizing:border-box}.input-group input:focus{border-color:#2dd4bf;box-shadow:0 0 0 4px rgba(45,212,191,0.1)}.input-group label{position:absolute;left:1rem;top:1rem;color:#94a3b8;transition:all 0.3s;pointer-events:none}.input-group input:focus~label,.input-group input:valid~label{top:-0.6rem;left:0.8rem;font-size:0.75rem;background:#1e1b4b;padding:0 0.4rem;color:#2dd4bf;border-radius:4px}.validation-icon{position:absolute;right:1rem;top:1rem}.strength-meter{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:0.5rem;overflow:hidden}.strength-bar{height:100%;width:0;transition:all 0.3s}.strength-text{font-size:0.75rem;margin-top:0.25rem;text-align:right}.terms{display:flex;align-items:center;gap:0.5rem;color:#94a3b8;font-size:0.875rem;margin-bottom:1.5rem}.terms a{color:#2dd4bf;text-decoration:none}.submit-btn{width:100%;padding:1rem;background:linear-gradient(135deg,#2dd4bf,#3b82f6);border:none;border-radius:12px;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all 0.3s}.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(45,212,191,0.3)}`,
-      javascript: `const pwd=document.getElementById('password');const bar=document.getElementById('strengthBar');const txt=document.getElementById('strengthText');const email=document.getElementById('email');const emailIcon=document.getElementById('emailIcon');pwd.addEventListener('input',(e)=>{const val=e.target.value;let strength=0;if(val.length>=8)strength++;if(val.match(/[A-Z]/))strength++;if(val.match(/[0-9]/))strength++;if(val.match(/[^A-Za-z0-9]/))strength++;let color,width,text;switch(strength){case 0:width='0';text='';break;case 1:width='25%';color='#ef4444';text='Weak';break;case 2:width='50%';color='#f97316';text='Fair';break;case 3:width='75%';color='#eab308';text='Good';break;case 4:width='100%';color='#22c55e';text='Strong 💪';break;}bar.style.width=width;bar.style.backgroundColor=color;txt.textContent=text;txt.style.color=color});email.addEventListener('blur',(e)=>{const val=e.target.value;if(val){const isValid=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(val);emailIcon.textContent=isValid?'✅':'❌'}else{emailIcon.textContent=''}});document.getElementById('signupForm').addEventListener('submit',(e)=>{e.preventDefault();if(document.getElementById('password').value!==document.getElementById('confirm').value){alert('Passwords do not match!');return}const btn=document.querySelector('.submit-btn');btn.textContent='Creating...';setTimeout(()=>{btn.textContent='Account Created!';btn.style.background='#22c55e'},1500)});`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+</head>
+<body>
+    <div class="container">
+        <form class="signup-form" id="signupForm">
+            <div class="rocket">🚀</div>
+            <h2>Create Account</h2>
+            <p class="subtitle">Join our community today</p>
+            <div class="name-grid">
+                <div class="input-group">
+                    <input type="text" id="fname" required>
+                    <label for="fname">First Name</label>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="lname" required>
+                    <label for="lname">Last Name</label>
+                </div>
+            </div>
+            <div class="input-group">
+                <input type="email" id="email" required>
+                <label for="email">Email Address</label>
+                <span class="validation-icon" id="emailIcon"></span>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" required>
+                <label for="password">Password</label>
+                <div class="strength-meter">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+                <p class="strength-text" id="strengthText"></p>
+            </div>
+            <div class="input-group">
+                <input type="password" id="confirm" required>
+                <label for="confirm">Confirm Password</label>
+            </div>
+            <label class="terms">
+                <input type="checkbox" required>
+                <span>I agree to the <a href="#">Terms</a> & <a href="#">Privacy</a></span>
+            </label>
+            <button type="submit" class="submit-btn">Create Account</button>
+        </form>
+    </div>
+</body>
+</html>`,
+      css: `body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f172a, #1e1b4b);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #fff;
+}
+.container {
+    width: 100%;
+    max-width: 480px;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+.signup-form {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2.5rem;
+    border-radius: 24px;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+    animation: scaleIn 0.5s ease-out;
+}
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95) }
+    to { opacity: 1; transform: scale(1) }
+}
+.rocket {
+    font-size: 3.5rem;
+    text-align: center;
+    animation: bounce 2s infinite ease-in-out;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0) }
+    50% { transform: translateY(-15px) }
+}
+h2 {
+    text-align: center;
+    margin: 0.5rem 0;
+    font-size: 2rem;
+    background: linear-gradient(to right, #2dd4bf, #a855f7);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+.subtitle {
+    text-align: center;
+    color: #94a3b8;
+    margin-bottom: 2rem;
+}
+.name-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+.input-group input {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+.input-group input:focus {
+    border-color: #2dd4bf;
+    box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.1);
+}
+.input-group label {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    color: #94a3b8;
+    transition: all 0.3s;
+    pointer-events: none;
+}
+.input-group input:focus~label,
+.input-group input:valid~label {
+    top: -0.6rem;
+    left: 0.8rem;
+    font-size: 0.75rem;
+    background: #1e1b4b;
+    padding: 0 0.4rem;
+    color: #2dd4bf;
+    border-radius: 4px;
+}
+.validation-icon {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+}
+.strength-meter {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+.strength-bar {
+    height: 100%;
+    width: 0;
+    transition: all 0.3s;
+}
+.strength-text {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    text-align: right;
+}
+.terms {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+.terms a {
+    color: #2dd4bf;
+    text-decoration: none;
+}
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #2dd4bf, #3b82f6);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(45, 212, 191, 0.3);
+}`,
+      javascript: `const pwd = document.getElementById('password');
+const bar = document.getElementById('strengthBar');
+const txt = document.getElementById('strengthText');
+const email = document.getElementById('email');
+const emailIcon = document.getElementById('emailIcon');
+
+pwd.addEventListener('input', (e) => {
+  const val = e.target.value;
+  let strength = 0;
+  if (val.length >= 8) strength++;
+  if (val.match(/[A-Z]/)) strength++;
+  if (val.match(/[0-9]/)) strength++;
+  if (val.match(/[^A-Za-z0-9]/)) strength++;
+  let color, width, text;
+  switch (strength) {
+    case 0:
+      width = '0';
+      text = '';
+      break;
+    case 1:
+      width = '25%';
+      color = '#ef4444';
+      text = 'Weak';
+      break;
+    case 2:
+      width = '50%';
+      color = '#f97316';
+      text = 'Fair';
+      break;
+    case 3:
+      width = '75%';
+      color = '#eab308';
+      text = 'Good';
+      break;
+    case 4:
+      width = '100%';
+      color = '#22c55e';
+      text = 'Strong 💪';
+      break;
+  }
+  bar.style.width = width;
+  bar.style.backgroundColor = color;
+  txt.textContent = text;
+  txt.style.color = color;
+});
+
+email.addEventListener('blur', (e) => {
+  const val = e.target.value;
+  if (val) {
+    const isValid = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(val);
+    emailIcon.textContent = isValid ? '✅' : '❌';
+  } else {
+    emailIcon.textContent = '';
+  }
+});
+
+document.getElementById('signupForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (document.getElementById('password').value !== document.getElementById('confirm').value) {
+    alert('Passwords do not match!');
+    return;
+  }
+  const btn = document.querySelector('.submit-btn');
+  btn.textContent = 'Creating...';
+  setTimeout(() => {
+    btn.textContent = 'Account Created!';
+    btn.style.background = '#22c55e';
+  }, 1500);
+});`,
     }
   },
 ]
@@ -192,7 +1129,21 @@ export default function CodeEditor() {
     }
     try {
       const saved = localStorage.getItem("webify_code")
-      if (saved) return JSON.parse(saved) as CodeContent
+      if (saved) {
+        const parsed = JSON.parse(saved) as CodeContent
+        // Check if the loaded code matches any unmodified old template (ignoring whitespace).
+        // If it does, return the new formatted template content.
+        const matchedTemplate = templates.find(t => {
+          const strip = (s: string) => s.replace(/\s+/g, "");
+          return strip(parsed.html) === strip(t.content.html) &&
+                 strip(parsed.css) === strip(t.content.css) &&
+                 strip(parsed.javascript) === strip(t.content.javascript);
+        });
+        if (matchedTemplate) {
+          return matchedTemplate.content
+        }
+        return parsed
+      }
     } catch {
       // corrupted storage — fall through
     }
@@ -214,7 +1165,7 @@ export default function CodeEditor() {
 
 
   const [isMobile, setIsMobile] = useState(false)
-  const [consoleErrors, setConsoleErrors] = useState<Array<{message: string; line?: number; col?: number}>>([])
+  const [consoleErrors, setConsoleErrors] = useState<Array<{ message: string; line?: number; col?: number }>>([])
   const [runtimeError, setRuntimeError] = useState<{
     message: string;
     line: number | null;
@@ -282,14 +1233,14 @@ export default function CodeEditor() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      try { localStorage.setItem('webify_code', JSON.stringify(code)) } catch {}
+      try { localStorage.setItem('webify_code', JSON.stringify(code)) } catch { }
     }, 500)
     return () => clearTimeout(timer)
   }, [code])
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      try { localStorage.setItem('webify_template_snapshots', JSON.stringify(templateSnapshots)) } catch {}
+      try { localStorage.setItem('webify_template_snapshots', JSON.stringify(templateSnapshots)) } catch { }
     }, 500)
     return () => clearTimeout(timer)
   }, [templateSnapshots])
@@ -426,7 +1377,17 @@ export default function CodeEditor() {
       setTemplateSnapshots((prev) => ({ ...prev, [currentTemplateId]: code }))
     }
     const savedSnapshot = templateSnapshots[template.id]
-    setCode(savedSnapshot ?? template.content)
+    if (savedSnapshot) {
+      // If the saved snapshot matches the default template (ignoring whitespace),
+      // discard the snapshot so the newly formatted template is loaded instead.
+      const strip = (s: string) => s.replace(/\s+/g, "");
+      const matchesDefault = strip(savedSnapshot.html) === strip(template.content.html) &&
+                             strip(savedSnapshot.css) === strip(template.content.css) &&
+                             strip(savedSnapshot.javascript) === strip(template.content.javascript);
+      setCode(matchesDefault ? template.content : savedSnapshot)
+    } else {
+      setCode(template.content)
+    }
     setCurrentTemplateId(template.id)
     toast("Template loaded", { description: `${template.name} template loaded.` })
   }
@@ -492,7 +1453,7 @@ export default function CodeEditor() {
       javascript: generated.javascript,
     })
     setActiveTab("html")
-if (layout === "preview") setLayout("split")
+    if (layout === "preview") setLayout("split")
   }
 
   useEffect(() => {
@@ -565,7 +1526,7 @@ if (layout === "preview") setLayout("split")
         perform: () => loadTemplate(t),
       })),
     ]
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout, activeTab, theme, isFullscreen, code])
 
   useEffect(() => {
@@ -748,11 +1709,10 @@ if (layout === "preview") setLayout("split")
                 onMouseDown={() => { handleDragStart(); document.body.style.cursor = isMobile ? "row-resize" : "col-resize" }}
                 onTouchStart={handleDragStart}
                 onDragStart={(e) => e.preventDefault()}
-                className={`shrink-0 z-10 transition-colors ${
-                  isMobile
+                className={`shrink-0 z-10 transition-colors ${isMobile
                     ? "h-2 w-full cursor-row-resize bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 active:bg-blue-600"
                     : "w-2 h-full cursor-col-resize bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 active:bg-blue-600"
-                }`}
+                  }`}
               />
             )}
 
@@ -813,7 +1773,7 @@ if (layout === "preview") setLayout("split")
                           onClick={() => setRuntimeError(null)}
                           style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#C53030', fontSize: '13px' }}
                         >
-                          
+
                         </button>
                       </div>
                     )}
@@ -861,9 +1821,8 @@ if (layout === "preview") setLayout("split")
                 <button
                   key={item.label}
                   onClick={item.action}
-                  className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors active:scale-95 ${
-                    item.active ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
-                  }`}
+                  className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors active:scale-95 ${item.active ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
+                    }`}
                 >
                   {item.icon}
                   {item.label}
