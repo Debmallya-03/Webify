@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 const safeBase64Encode = (str: string) =>
   btoa(unescape(encodeURIComponent(str)));
@@ -17,7 +17,7 @@ import { CommandPalette, type Command } from "@/components/ui/command-palette"
 import {
   Code2, Play, Download, Upload, Layout, Maximize2, Minimize2,
   FileText, Palette, Zap, Sun, Moon, Search, Link as LinkIcon,
-  Undo2, Redo2, Timer, MoreHorizontal, X,
+  Undo2, Redo2, Timer, MoreHorizontal, X, LogIn, UserPlus,
 } from "lucide-react"
 import { toast } from "sonner"
 import * as prettier from 'prettier'
@@ -285,6 +285,11 @@ export default function CodeEditor() {
 
   const [isMobile, setIsMobile] = useState(false)
   const [consoleErrors, setConsoleErrors] = useState<Array<{message: string; line?: number; col?: number}>>([])
+  const [runtimeError, setRuntimeError] = useState<{
+    message: string;
+    line: number | null;
+    column: number | null;
+  } | null>(null)
   const [consoleOpen, setConsoleOpen] = useState(false)
   const [moreSheetOpen, setMoreSheetOpen] = useState(false)
 
@@ -320,6 +325,11 @@ export default function CodeEditor() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "WEBIFY_ERROR") {
+        setRuntimeError({
+          message: event.data.message,
+          line: event.data.line ?? null,
+          column: event.data.column ?? event.data.col ?? null,
+        })
         setConsoleErrors((prev) => [...prev, {
           message: event.data.message,
           line: event.data.line,
@@ -426,13 +436,15 @@ export default function CodeEditor() {
 
   useEffect(() => {
     if (!previewRef.current || !autoRun) return
+    // clear runtime error on each recompile; timeout errors are caught by the iframe's own watchdog
+    setRuntimeError(null)
     if (!htmlValidation.isValid) {
       previewRef.current.srcdoc = createPreviewErrorHtml(htmlValidation.message ?? "Invalid HTML syntax.")
       return
     }
     const debounceTimer = setTimeout(() => {
       if (!previewRef.current) return
-      const combinedCode = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Live Preview</title><style>${code.css}</style></head><body>${code.html}<script>(function(){window.onerror=function(msg,src,line,col){window.parent.postMessage({type:'WEBIFY_ERROR',message:String(msg),line:line,col:col},'*');return true};var k=setTimeout(function(){window.parent.postMessage({type:'WEBIFY_ERROR',message:'Script timed out after 5 seconds'},'*');document.body.innerHTML='<div style="padding:20px;color:red;font-family:monospace;">Script timed out.</div>'},5000);try{${code.javascript}}catch(e){clearTimeout(k);window.parent.postMessage({type:'WEBIFY_ERROR',message:e.message},'*');var el=document.createElement('div');el.style.cssText='padding:20px;color:red;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el);return}clearTimeout(k)})()\<\/script></body></html>`
+      const combinedCode = `<!DOCTYPE html><html lang="en"><head><script>(function(){window.onerror=function(msg,src,line,col){window.parent.postMessage({type:'WEBIFY_ERROR',message:String(msg),line:line ?? null,column:col ?? null},'*');return true};window.addEventListener('unhandledrejection',function(event){var reason=event.reason instanceof Error?event.reason.message:String(event.reason);window.parent.postMessage({type:'WEBIFY_ERROR',message:reason,line:null,column:null},'*')})})()</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Live Preview</title><style>${code.css}</style></head><body>${code.html}<script>(function(){var k=setTimeout(function(){window.parent.postMessage({type:'WEBIFY_ERROR',message:'Script timed out after 5 seconds'},'*');document.body.innerHTML='<div style="padding:20px;color:red;font-family:monospace;">Script timed out.</div>'},5000);try{${code.javascript}}catch(e){clearTimeout(k);window.parent.postMessage({type:'WEBIFY_ERROR',message:e.message},'*');var el=document.createElement('div');el.style.cssText='padding:20px;color:red;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el);return}clearTimeout(k)})()\<\/script></body></html>`
       setConsoleErrors([])
       const blob = new Blob([combinedCode], { type: "text/html" })
       const url = URL.createObjectURL(blob)
@@ -444,11 +456,13 @@ export default function CodeEditor() {
 
   const runCodeManually = () => {
     if (!previewRef.current) return
+    // clear runtime error on each recompile; timeout errors are caught by the iframe's own watchdog
+    setRuntimeError(null)
     if (!htmlValidation.isValid) {
       previewRef.current.srcdoc = createPreviewErrorHtml(htmlValidation.message ?? "Invalid HTML syntax.")
       return
     }
-    const combinedCode = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Live Preview</title><style>${code.css}</style></head><body>${code.html}<script>(function(){window.onerror=function(msg,src,line,col){window.parent.postMessage({type:'WEBIFY_ERROR',message:String(msg),line:line,col:col},'*');return true};var k=setTimeout(function(){document.body.innerHTML='<div style="padding:20px;color:red;font-family:monospace;">Script timed out.</div>'},5000);try{${code.javascript}}catch(e){clearTimeout(k);var el=document.createElement('div');el.style.cssText='padding:20px;color:red;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el);return}clearTimeout(k)})()\<\/script></body></html>`
+    const combinedCode = `<!DOCTYPE html><html lang="en"><head><script>(function(){window.onerror=function(msg,src,line,col){window.parent.postMessage({type:'WEBIFY_ERROR',message:String(msg),line:line ?? null,column:col ?? null},'*');return true};window.addEventListener('unhandledrejection',function(event){var reason=event.reason instanceof Error?event.reason.message:String(event.reason);window.parent.postMessage({type:'WEBIFY_ERROR',message:reason,line:null,column:null},'*')})})()</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Live Preview</title><style>${code.css}</style></head><body>${code.html}<script>(function(){var k=setTimeout(function(){document.body.innerHTML='<div style="padding:20px;color:red;font-family:monospace;">Script timed out.</div>'},5000);try{${code.javascript}}catch(e){clearTimeout(k);var el=document.createElement('div');el.style.cssText='padding:20px;color:red;font-family:monospace;';el.textContent='JS Error: '+e.message;document.body.appendChild(el);return}clearTimeout(k)})()\<\/script></body></html>`
     setConsoleErrors([])
     const blob = new Blob([combinedCode], { type: "text/html" })
     const url = URL.createObjectURL(blob)
@@ -843,6 +857,36 @@ if (layout === "preview") setLayout("split")
                       title="Live Preview"
                       sandbox="allow-scripts allow-forms allow-popups allow-modals"
                     />
+                    {runtimeError && (
+                      <div style={{
+                        padding: '8px 12px',
+                        background: '#FFF5F5',
+                        borderTop: '1px solid #FEB2B2',
+                        color: '#C53030',
+                        fontFamily: 'monospace',
+                        fontSize: '13px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <span></span>
+                        <span>
+                          {runtimeError.message}
+                          {runtimeError.line ? ` (Line ${runtimeError.line}${runtimeError.column ? `:${runtimeError.column}` : ''})` : ''}
+                          {runtimeError.message === "Script error." && runtimeError.line === 0 && (
+                            <span style={{ fontSize: '11px', color: '#9B2C2C', marginTop: '2px', display: 'block' }}>
+                              Tip: External script error - check your CDN links or add crossorigin=&quot;anonymous&quot;
+                            </span>
+                          )}
+                        </span>
+                        <button
+                          onClick={() => setRuntimeError(null)}
+                          style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#C53030', fontSize: '13px' }}
+                        >
+                          
+                        </button>
+                      </div>
+                    )}
                     {isResizing && <div className="absolute inset-0 z-20 cursor-row-resize md:cursor-col-resize" />}
                   </div>
                   {/* Console Panel */}
