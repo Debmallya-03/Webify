@@ -207,12 +207,7 @@ export default function CodeEditor() {
   const [autoRun, setAutoRun] = useState(true)
   const [splitRatio, setSplitRatio] = useState(50)
   const [isResizing, setIsResizing] = useState(false)
-
-
-
-
-
-
+  const [fontSize, setFontSize] = useState<number>(14)
   const [isMobile, setIsMobile] = useState(false)
   const [consoleErrors, setConsoleErrors] = useState<Array<{message: string; line?: number; col?: number}>>([])
   const [runtimeError, setRuntimeError] = useState<{
@@ -473,6 +468,18 @@ export default function CodeEditor() {
     }
     input.click()
   }
+  const resetCode = () => {
+    if (window.confirm("Reset all editors to empty? This cannot be undone.")) {
+      setCode({ html: "", css: "", javascript: "" })
+      setCurrentTemplateId(null)
+      setTemplateSnapshots({})
+      localStorage.removeItem("webify_code")
+      localStorage.removeItem("webify_template_snapshots")
+      toast("Reset successful", {
+        description: "All editors have been cleared.",
+      })
+    }
+  }
 
   const copyShareLink = async () => {
     if (typeof window === "undefined") return
@@ -676,6 +683,9 @@ if (layout === "preview") setLayout("split")
                   <Button variant={layout === "preview" ? "default" : "ghost"} size="sm" className="h-7 w-7 p-0" onClick={() => setLayout("preview")} title="Preview only"><Play className="w-4 h-4" /></Button>
                 </div>
                 <div className="w-px h-5 bg-gray-200 dark:bg-gray-600" />
+                <Button variant="outline" size="sm" className="h-8 text-xs" onClick={resetCode}>
+                  <Undo2 className="w-3.5 h-3.5 mr-1.5" />Reset
+                </Button>
                 <Button variant="outline" size="sm" className="h-8 text-xs" onClick={formatCode}><Zap className="w-3.5 h-3.5 mr-1.5" />Format</Button>
                 <Button variant="outline" size="sm" className="h-8 text-xs" onClick={importCode}><Upload className="w-3.5 h-3.5 mr-1.5" />Import</Button>
                 <Button variant="outline" size="sm" className="h-8 text-xs" onClick={downloadCode}><Download className="w-3.5 h-3.5 mr-1.5" />Download</Button>
