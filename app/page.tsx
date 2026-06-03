@@ -1928,9 +1928,10 @@ ${code.html}
   const resetCode = () => {
     if (window.confirm("Reset all editors to empty? This cannot be undone.")) {
       setCode({ html: "", css: "", javascript: "" })
-      localStorage.removeItem("webify-code-html")
-      localStorage.removeItem("webify-code-css")
-      localStorage.removeItem("webify-code-javascript")
+      setCurrentTemplateId(null)
+      setTemplateSnapshots({})
+      localStorage.removeItem("webify_code")
+      localStorage.removeItem("webify_template_snapshots")
       toast("Reset successful", {
         description: "All editors have been cleared.",
       })
