@@ -207,12 +207,6 @@ export default function CodeEditor() {
   const [autoRun, setAutoRun] = useState(true)
   const [splitRatio, setSplitRatio] = useState(50)
   const [isResizing, setIsResizing] = useState(false)
-
-
-
-
-
-
   const [isMobile, setIsMobile] = useState(false)
   const [consoleErrors, setConsoleErrors] = useState<Array<{message: string; line?: number; col?: number}>>([])
   const [runtimeError, setRuntimeError] = useState<{
@@ -222,7 +216,6 @@ export default function CodeEditor() {
   } | null>(null)
   const [consoleOpen, setConsoleOpen] = useState(false)
   const [moreSheetOpen, setMoreSheetOpen] = useState(false)
-
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null)
   const [templateSnapshots, setTemplateSnapshots] = useState<Record<string, CodeContent>>(() => {
     if (typeof window === "undefined") return {}
@@ -315,6 +308,18 @@ export default function CodeEditor() {
       setTheme("light")
       document.documentElement.classList.remove("dark")
       localStorage.setItem("theme", "light")
+    }
+  }
+
+  const handleFullscreenToggle = async () => {
+    try {
+      if (document.fullscreenElement) {
+        if (document.exitFullscreen) await document.exitFullscreen()
+      } else if (containerRef.current?.requestFullscreen) {
+        await containerRef.current.requestFullscreen()
+      }
+    } catch (err) {
+      console.error("Error toggling fullscreen:", err)
     }
   }
 
@@ -551,7 +556,7 @@ if (layout === "preview") setLayout("split")
         id: "action-fullscreen", label: isFullscreen ? "Exit fullscreen" : "Enter fullscreen", group: "Actions",
         icon: isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />,
         keywords: "expand maximize zoom",
-        perform: () => setIsFullscreen((v) => !v),
+        perform: handleFullscreenToggle,
       },
       {
         id: "action-theme", label: theme === "light" ? "Switch to dark mode" : "Switch to light mode", group: "Actions",
@@ -610,7 +615,7 @@ if (layout === "preview") setLayout("split")
                   { label: "Import file", icon: <Upload className="w-5 h-5" />, action: importCode },
                   { label: "Share link", icon: <LinkIcon className="w-5 h-5" />, action: copyShareLink },
                   { label: "Open in tab", icon: <Maximize2 className="w-5 h-5" />, action: () => { if (previewRef.current?.src) window.open(previewRef.current.src, "_blank") } },
-                  { label: isFullscreen ? "Exit fullscreen" : "Fullscreen", icon: isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />, action: () => { setIsFullscreen(v => !v); setMoreSheetOpen(false) } },
+                  { label: isFullscreen ? "Exit fullscreen" : "Fullscreen", icon: isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />, action: handleFullscreenToggle },
                   { label: "Command palette", icon: <Search className="w-5 h-5" />, action: () => { setMoreSheetOpen(false); setPaletteOpen(true) } },
                   { label: theme === "light" ? "Dark mode" : "Light mode", icon: theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />, action: () => { toggleTheme(); setMoreSheetOpen(false) } },
                 ].map((item) => (
@@ -680,7 +685,7 @@ if (layout === "preview") setLayout("split")
                 <Button variant="outline" size="sm" className="h-8 text-xs" onClick={importCode}><Upload className="w-3.5 h-3.5 mr-1.5" />Import</Button>
                 <Button variant="outline" size="sm" className="h-8 text-xs" onClick={downloadCode}><Download className="w-3.5 h-3.5 mr-1.5" />Download</Button>
                 <CopyButton text={shareUrl} />
-                <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => setIsFullscreen(!isFullscreen)}>
+                <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={handleFullscreenToggle}>
                   {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                 </Button>
                 <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={toggleTheme}>
@@ -711,10 +716,11 @@ if (layout === "preview") setLayout("split")
                 <div
                   style={
                     layout === "split"
-                      ? isMobile
-                        ? { height: `${splitRatio}%` }
-                        : { width: `${splitRatio}%` }
-                      : { flex: 1 }
+                      ? {
+                          width: isMobile ? "100%" : `${splitRatio}%`,
+                          height: isMobile ? `${splitRatio}%` : "100%",
+                        }
+                      : { height: "100%", width: "100%" }
                   }
                   className="flex flex-col overflow-hidden shrink-0 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700"
                 >
@@ -762,10 +768,11 @@ if (layout === "preview") setLayout("split")
                 <div
                   style={
                     layout === "split"
-                      ? isMobile
-                        ? { height: `${100 - splitRatio}%` }
-                        : { width: `${100 - splitRatio}%` }
-                      : { flex: 1 }
+                      ? {
+                          width: isMobile ? "100%" : `${100 - splitRatio}%`,
+                          height: isMobile ? `${100 - splitRatio}%` : "100%",
+                        }
+                      : { height: "100%", width: "100%" }
                   }
                   className="flex flex-col overflow-hidden shrink-0"
                 >
